@@ -126,6 +126,26 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    public UserResponse getUserByEmail(String email) {
+        log.info("Getting user by email: {}", email);
+        
+        // Validate email input
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("Email must not be null or empty");
+        }
+        
+        try {
+            User user = userRepository.findByEmail(email.trim())
+                    .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+            return mapToUserResponse(user);
+        } catch (Exception e) {
+            if (e instanceof IllegalArgumentException) {
+                throw e; // Re-throw validation exceptions
+            }
+            throw new IllegalStateException("Failed to retrieve user with email: " + email, e);
+        }
+    }
+
     private UserResponse mapToUserResponse(User user) {
         return UserResponse.builder()
                 .id(user.getId())
