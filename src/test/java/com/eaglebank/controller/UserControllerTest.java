@@ -4,6 +4,7 @@ import com.eaglebank.domain.Address;
 import com.eaglebank.dto.CreateUserRequest;
 import com.eaglebank.dto.UpdateUserRequest;
 import com.eaglebank.dto.UserResponse;
+import com.eaglebank.exception.UserNotFoundException;
 import com.eaglebank.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -170,7 +171,7 @@ class UserControllerTest {
     @WithMockUser
     void shouldReturnNotFoundForNonExistentUser() throws Exception {
         when(userService.getUserById("usr-nonexistent"))
-                .thenThrow(new IllegalArgumentException("User not found"));
+                .thenThrow(new UserNotFoundException("User not found"));
 
         mockMvc.perform(get("/api/v1/users/usr-nonexistent"))
                 .andExpect(status().isNotFound());

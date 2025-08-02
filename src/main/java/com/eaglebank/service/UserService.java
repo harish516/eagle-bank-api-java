@@ -5,6 +5,7 @@ import com.eaglebank.domain.User;
 import com.eaglebank.dto.CreateUserRequest;
 import com.eaglebank.dto.UpdateUserRequest;
 import com.eaglebank.dto.UserResponse;
+import com.eaglebank.exception.UserNotFoundException;
 import com.eaglebank.repository.BankAccountRepository;
 import com.eaglebank.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -59,7 +60,7 @@ public class UserService {
         
         try {
             User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+                    .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
             return mapToUserResponse(user);
         } catch (Exception e) {
             if (e instanceof IllegalArgumentException) {
@@ -72,7 +73,7 @@ public class UserService {
     public UserResponse updateUser(String userId, UpdateUserRequest request) {
         log.info("Updating user with ID: {}", userId);
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
 
         if (request.getName() != null) {
             user.setName(request.getName());
@@ -100,7 +101,7 @@ public class UserService {
     public void deleteUser(String userId) {
         log.info("Deleting user with ID: {}", userId);
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
         
         // Check if user has associated accounts
         // For now, we'll simulate this check - in a real implementation this would
@@ -136,7 +137,7 @@ public class UserService {
         
         try {
             User user = userRepository.findByEmail(email.trim())
-                    .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+                    .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
             return mapToUserResponse(user);
         } catch (Exception e) {
             if (e instanceof IllegalArgumentException) {

@@ -1,12 +1,15 @@
 package com.eaglebank.controller;
 
+import com.eaglebank.dto.BadRequestErrorResponse;
 import com.eaglebank.dto.CreateUserRequest;
+import com.eaglebank.dto.ErrorResponse;
 import com.eaglebank.dto.UpdateUserRequest;
 import com.eaglebank.dto.UserResponse;
 import com.eaglebank.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -36,8 +39,18 @@ public class UserController extends BaseController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "User created successfully",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponse.class))),
-        @ApiResponse(responseCode = "400", description = "Invalid input data"),
-        @ApiResponse(responseCode = "409", description = "User with email already exists")
+        @ApiResponse(responseCode = "400", description = "Invalid input data",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestErrorResponse.class))),
+        @ApiResponse(responseCode = "409", description = "User with email already exists",
+                content = @Content(mediaType = "application/json", 
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    examples = @ExampleObject(
+                        value = "{\"message\": \"User with email already exists\", \"timestamp\": \"2024-01-15T10:30:00\"}"))),
+        @ApiResponse(responseCode = "500", description = "Internal server error",
+                content = @Content(mediaType = "application/json", 
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    examples = @ExampleObject(
+                        value = "{\"message\": \"An unexpected error occurred\", \"timestamp\": \"2024-01-15T10:30:00\"}")))
     })
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
         log.info("Creating user with email: {}", request.getEmail());
@@ -52,9 +65,26 @@ public class UserController extends BaseController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "User found",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponse.class))),
-        @ApiResponse(responseCode = "401", description = "Unauthorized"),
-        @ApiResponse(responseCode = "403", description = "Forbidden - User can only access their own data"),
-        @ApiResponse(responseCode = "404", description = "User not found")
+        @ApiResponse(responseCode = "401", description = "Unauthorized",
+                content = @Content(mediaType = "application/json", 
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    examples = @ExampleObject(
+                        value = "{\"message\": \"Unauthorized\", \"timestamp\": \"2024-01-15T10:30:00\"}"))),
+        @ApiResponse(responseCode = "403", description = "Forbidden - User can only access their own data",
+                content = @Content(mediaType = "application/json", 
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    examples = @ExampleObject(
+                        value = "{\"message\": \"Forbidden - User can only access their own data\", \"timestamp\": \"2024-01-15T10:30:00\"}"))),
+        @ApiResponse(responseCode = "404", description = "User not found",
+                content = @Content(mediaType = "application/json", 
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    examples = @ExampleObject(
+                        value = "{\"message\": \"User not found\", \"timestamp\": \"2024-01-15T10:30:00\"}"))),
+        @ApiResponse(responseCode = "500", description = "Internal server error",
+                content = @Content(mediaType = "application/json", 
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    examples = @ExampleObject(
+                        value = "{\"message\": \"An unexpected error occurred\", \"timestamp\": \"2024-01-15T10:30:00\"}")))
     })
     public ResponseEntity<UserResponse> getUserById(
             @Parameter(description = "User ID", required = true) @PathVariable String userId, 
@@ -66,30 +96,20 @@ public class UserController extends BaseController {
         if (authenticatedEmail == null) {
             // In test environment or when security is disabled, skip authentication check
             log.debug("No authenticated email found - proceeding without authentication check (likely test environment)");
-            try {
-                UserResponse response = userService.getUserById(userId);
-                return ResponseEntity.ok(response);
-            } catch (IllegalArgumentException e) {
-                log.warn("User not found: {}", userId);
-                return ResponseEntity.notFound().build();
-            }
+            UserResponse response = userService.getUserById(userId);
+            return ResponseEntity.ok(response);
         }
         
-        try {
-            UserResponse requestedUser = userService.getUserById(userId);
-            
-            // Check if the authenticated user is requesting their own data by comparing emails
-            if (!authenticatedEmail.equals(requestedUser.getEmail())) {
-                log.warn("User with email {} attempted to access data for user ID: {} with email: {}", 
-                    authenticatedEmail, userId, requestedUser.getEmail());
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-            
-            return ResponseEntity.ok(requestedUser);
-        } catch (IllegalArgumentException e) {
-            log.warn("User not found: {}", userId);
-            return ResponseEntity.notFound().build();
+        UserResponse requestedUser = userService.getUserById(userId);
+        
+        // Check if the authenticated user is requesting their own data by comparing emails
+        if (!authenticatedEmail.equals(requestedUser.getEmail())) {
+            log.warn("User with email {} attempted to access data for user ID: {} with email: {}", 
+                authenticatedEmail, userId, requestedUser.getEmail());
+            throw new IllegalStateException("Forbidden - User can only access their own data");
         }
+        
+        return ResponseEntity.ok(requestedUser);
     }
 
     @PatchMapping("/{userId}")
@@ -99,10 +119,28 @@ public class UserController extends BaseController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "User updated successfully",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponse.class))),
-        @ApiResponse(responseCode = "400", description = "Invalid input data"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized"),
-        @ApiResponse(responseCode = "403", description = "Forbidden - User can only update their own data"),
-        @ApiResponse(responseCode = "404", description = "User not found")
+        @ApiResponse(responseCode = "400", description = "Invalid input data",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestErrorResponse.class))),
+        @ApiResponse(responseCode = "401", description = "Unauthorized",
+                content = @Content(mediaType = "application/json", 
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    examples = @ExampleObject(
+                        value = "{\"message\": \"Unauthorized\", \"timestamp\": \"2024-01-15T10:30:00\"}"))),
+        @ApiResponse(responseCode = "403", description = "Forbidden - User can only update their own data",
+                content = @Content(mediaType = "application/json", 
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    examples = @ExampleObject(
+                        value = "{\"message\": \"Forbidden - User can only update their own data\", \"timestamp\": \"2024-01-15T10:30:00\"}"))),
+        @ApiResponse(responseCode = "404", description = "User not found",
+                content = @Content(mediaType = "application/json", 
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    examples = @ExampleObject(
+                        value = "{\"message\": \"User not found\", \"timestamp\": \"2024-01-15T10:30:00\"}"))),
+        @ApiResponse(responseCode = "500", description = "Internal server error",
+                content = @Content(mediaType = "application/json", 
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    examples = @ExampleObject(
+                        value = "{\"message\": \"An unexpected error occurred\", \"timestamp\": \"2024-01-15T10:30:00\"}")))
     })
     public ResponseEntity<UserResponse> updateUser(
             @Parameter(description = "User ID", required = true) @PathVariable String userId, 
@@ -115,30 +153,20 @@ public class UserController extends BaseController {
         if (authenticatedEmail == null) {
             // In test environment or when security is disabled, skip authentication check
             log.debug("No authenticated email found - proceeding without authentication check (likely test environment)");
-            try {
-                UserResponse response = userService.updateUser(userId, request);
-                return ResponseEntity.ok(response);
-            } catch (IllegalArgumentException e) {
-                log.warn("User not found for update: {}", userId);
-                return ResponseEntity.notFound().build();
-            }
-        }
-        
-        try {
-            // First check if the user exists and if the authenticated user can access it
-            UserResponse existingUser = userService.getUserById(userId);
-            if (!authenticatedEmail.equals(existingUser.getEmail())) {
-                log.warn("User with email {} attempted to update data for user ID: {} with email: {}", 
-                    authenticatedEmail, userId, existingUser.getEmail());
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-            
             UserResponse response = userService.updateUser(userId, request);
             return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            log.warn("User not found for update: {}", userId);
-            return ResponseEntity.notFound().build();
         }
+        
+        // First check if the user exists and if the authenticated user can access it
+        UserResponse existingUser = userService.getUserById(userId);
+        if (!authenticatedEmail.equals(existingUser.getEmail())) {
+            log.warn("User with email {} attempted to update data for user ID: {} with email: {}", 
+                authenticatedEmail, userId, existingUser.getEmail());
+            throw new IllegalStateException("Forbidden - User can only access their own data");
+        }
+        
+        UserResponse response = userService.updateUser(userId, request);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{userId}")
@@ -147,10 +175,31 @@ public class UserController extends BaseController {
     @SecurityRequirement(name = "oauth2")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "User deleted successfully"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized"),
-        @ApiResponse(responseCode = "403", description = "Forbidden - User can only delete their own account"),
-        @ApiResponse(responseCode = "404", description = "User not found"),
-        @ApiResponse(responseCode = "409", description = "Conflict - Cannot delete user with associated accounts")
+        @ApiResponse(responseCode = "401", description = "Unauthorized",
+                content = @Content(mediaType = "application/json", 
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    examples = @ExampleObject(
+                        value = "{\"message\": \"Unauthorized\", \"timestamp\": \"2024-01-15T10:30:00\"}"))),
+        @ApiResponse(responseCode = "403", description = "Forbidden - User can only delete their own account",
+                content = @Content(mediaType = "application/json", 
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    examples = @ExampleObject(
+                        value = "{\"message\": \"Forbidden - User can only delete their own account\", \"timestamp\": \"2024-01-15T10:30:00\"}"))),
+        @ApiResponse(responseCode = "404", description = "User not found",
+                content = @Content(mediaType = "application/json", 
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    examples = @ExampleObject(
+                        value = "{\"message\": \"User not found\", \"timestamp\": \"2024-01-15T10:30:00\"}"))),
+        @ApiResponse(responseCode = "409", description = "Conflict - Cannot delete user with associated accounts",
+                content = @Content(mediaType = "application/json", 
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    examples = @ExampleObject(
+                        value = "{\"message\": \"Cannot delete user with associated accounts\", \"timestamp\": \"2024-01-15T10:30:00\"}"))),
+        @ApiResponse(responseCode = "500", description = "Internal server error",
+                content = @Content(mediaType = "application/json", 
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    examples = @ExampleObject(
+                        value = "{\"message\": \"An unexpected error occurred\", \"timestamp\": \"2024-01-15T10:30:00\"}")))
     })
     public ResponseEntity<Void> deleteUser(
             @Parameter(description = "User ID", required = true) @PathVariable String userId, 
@@ -162,36 +211,20 @@ public class UserController extends BaseController {
         if (authenticatedEmail == null) {
             // In test environment or when security is disabled, skip authentication check
             log.debug("No authenticated email found - proceeding without authentication check (likely test environment)");
-            try {
-                userService.deleteUser(userId);
-                return ResponseEntity.noContent().build();
-            } catch (IllegalArgumentException e) {
-                log.warn("User not found for deletion: {}", userId);
-                return ResponseEntity.notFound().build();
-            } catch (IllegalStateException e) {
-                log.warn("Cannot delete user with associated accounts: {}", userId);
-                return ResponseEntity.status(HttpStatus.CONFLICT).build();
-            }
-        }
-        
-        try {
-            // First check if the user exists and if the authenticated user can access it
-            UserResponse existingUser = userService.getUserById(userId);
-            if (!authenticatedEmail.equals(existingUser.getEmail())) {
-                log.warn("User with email {} attempted to delete data for user ID: {} with email: {}", 
-                    authenticatedEmail, userId, existingUser.getEmail());
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-            
             userService.deleteUser(userId);
             return ResponseEntity.noContent().build();
-        } catch (IllegalArgumentException e) {
-            log.warn("User not found for deletion: {}", userId);
-            return ResponseEntity.notFound().build();
-        } catch (IllegalStateException e) {
-            log.warn("Cannot delete user with associated accounts: {}", userId);
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
+        
+        // First check if the user exists and if the authenticated user can access it
+        UserResponse existingUser = userService.getUserById(userId);
+        if (!authenticatedEmail.equals(existingUser.getEmail())) {
+            log.warn("User with email {} attempted to delete data for user ID: {} with email: {}", 
+                authenticatedEmail, userId, existingUser.getEmail());
+            throw new IllegalStateException("Forbidden - User can only access their own data");
+        }
+        
+        userService.deleteUser(userId);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/me")
@@ -201,8 +234,21 @@ public class UserController extends BaseController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Current user details",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponse.class))),
-        @ApiResponse(responseCode = "401", description = "Unauthorized"),
-        @ApiResponse(responseCode = "404", description = "Authenticated user not found in database")
+        @ApiResponse(responseCode = "401", description = "Unauthorized",
+                content = @Content(mediaType = "application/json", 
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    examples = @ExampleObject(
+                        value = "{\"message\": \"Unauthorized\", \"timestamp\": \"2024-01-15T10:30:00\"}"))),
+        @ApiResponse(responseCode = "404", description = "Authenticated user not found in database",
+                content = @Content(mediaType = "application/json", 
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    examples = @ExampleObject(
+                        value = "{\"message\": \"Authenticated user not found in database\", \"timestamp\": \"2024-01-15T10:30:00\"}"))),
+        @ApiResponse(responseCode = "500", description = "Internal server error",
+                content = @Content(mediaType = "application/json", 
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    examples = @ExampleObject(
+                        value = "{\"message\": \"An unexpected error occurred\", \"timestamp\": \"2024-01-15T10:30:00\"}")))
     })
     public ResponseEntity<UserResponse> getCurrentUser(Authentication authentication) {
         log.info("Getting current user details");
@@ -214,20 +260,20 @@ public class UserController extends BaseController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         
-        try {
-            UserResponse response = userService.getUserByEmail(authenticatedEmail);
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            log.warn("Authenticated user not found in database: {}", authenticatedEmail);
-            return ResponseEntity.notFound().build();
-        }
+        UserResponse response = userService.getUserByEmail(authenticatedEmail);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping
     @Operation(summary = "Get all users", description = "Retrieves a list of all users (Admin operation)")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "List of users",
-                content = @Content(mediaType = "application/json"))
+                content = @Content(mediaType = "application/json")),
+        @ApiResponse(responseCode = "500", description = "Internal server error",
+                content = @Content(mediaType = "application/json", 
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    examples = @ExampleObject(
+                        value = "{\"message\": \"An unexpected error occurred\", \"timestamp\": \"2024-01-15T10:30:00\"}")))
     })
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         log.info("Getting all users");
