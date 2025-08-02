@@ -460,4 +460,114 @@ class UserServiceTest {
         verify(userRepository).save(any(User.class));
     }
 
+    // Tests for getUserByEmail method
+    @Test
+    void shouldReturnUserWhenFoundByEmail() {
+        // Given
+        String email = "test@example.com";
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(testUser));
+
+        // When
+        UserResponse result = userService.getUserByEmail(email);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo("usr-abc123");
+        assertThat(result.getName()).isEqualTo("Test User");
+        assertThat(result.getEmail()).isEqualTo("test@example.com");
+        assertThat(result.getPhoneNumber()).isEqualTo("+44123456789");
+
+        verify(userRepository).findByEmail(email);
+        verifyNoMoreInteractions(userRepository);
+        verifyNoInteractions(bankAccountRepository);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUserNotFoundByEmail() {
+        // Given
+        String email = "nonexistent@example.com";
+        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> userService.getUserByEmail(email))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("User not found with email: nonexistent@example.com");
+
+        verify(userRepository).findByEmail(email);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenEmailIsNull() {
+        // Given
+        String email = null;
+
+        // When & Then
+        assertThatThrownBy(() -> userService.getUserByEmail(email))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Email must not be null or empty");
+
+        verifyNoInteractions(userRepository);
+        verifyNoInteractions(bankAccountRepository);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenEmailIsEmpty() {
+        // Given
+        String email = "";
+
+        // When & Then
+        assertThatThrownBy(() -> userService.getUserByEmail(email))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Email must not be null or empty");
+
+        verifyNoInteractions(userRepository);
+        verifyNoInteractions(bankAccountRepository);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenEmailIsBlank() {
+        // Given
+        String email = "   ";
+
+        // When & Then
+        assertThatThrownBy(() -> userService.getUserByEmail(email))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Email must not be null or empty");
+
+        verifyNoInteractions(userRepository);
+        verifyNoInteractions(bankAccountRepository);
+    }
+
+    @Test
+    void shouldTrimEmailWhenSearching() {
+        // Given
+        String emailWithSpaces = "  test@example.com  ";
+        String trimmedEmail = "test@example.com";
+        when(userRepository.findByEmail(trimmedEmail)).thenReturn(Optional.of(testUser));
+
+        // When
+        UserResponse result = userService.getUserByEmail(emailWithSpaces);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getEmail()).isEqualTo("test@example.com");
+
+        verify(userRepository).findByEmail(trimmedEmail);
+    }
+
+    @Test
+    void shouldHandleRepositoryExceptionInGetUserByEmail() {
+        // Given
+        String email = "test@example.com";
+        when(userRepository.findByEmail(email)).thenThrow(new RuntimeException("Database connection error"));
+
+        // When & Then
+        assertThatThrownBy(() -> userService.getUserByEmail(email))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Failed to retrieve user with email: test@example.com")
+                .hasCauseInstanceOf(RuntimeException.class);
+
+        verify(userRepository).findByEmail(email);
+    }
+
 } 
