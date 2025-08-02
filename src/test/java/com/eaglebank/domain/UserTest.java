@@ -99,4 +99,630 @@ class UserTest {
         assertThat(user.getPhoneNumber()).isEqualTo("+44987654321");
         assertThat(user.getEmail()).isEqualTo("updated@example.com");
     }
+
+    /**
+     * Tests the validation of null fields in User attributes.
+     * It checks if the builder throws NullPointerException when required fields are null.
+     */
+    @Test
+    void shouldThrowWhenIdIsNull() {
+        assertThatThrownBy(() -> User.builder()
+                .id(null)
+                .name("Test User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("test@example.com")
+                .build())
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("id");
+    }
+
+    @Test
+    void shouldThrowWhenPhoneNumberIsNull() {
+        assertThatThrownBy(() -> User.builder()
+                .id("usr-abc123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber(null)
+                .email("test@example.com")
+                .build())
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("phoneNumber");
+    }
+
+    @Test
+    void shouldThrowWhenNameIsNull() {
+        assertThatThrownBy(() -> User.builder()
+                .id("usr-abc123")
+                .name(null)
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("test@example.com")
+                .build())
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("name");
+    }
+
+    @Test
+    void shouldThrowWhenAddressIsNull() {
+        assertThatThrownBy(() -> User.builder()
+                .id("usr-abc123")
+                .name("Test User")
+                .address(null)
+                .phoneNumber("+44123456789")
+                .email("test@example.com")
+                .build())
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("address");
+    }
+
+    @Test
+    void shouldThrowWhenEmailIsNull() {
+        assertThatThrownBy(() -> User.builder()
+                .id("usr-abc123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email(null)
+                .build())
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("email");
+    }
+
+    /**
+     * Tests the validation of empty and blank fields in User attributes.
+     */
+
+    @Test
+    void shouldThrowWhenNameIsEmpty() {
+        assertThatThrownBy(() -> User.builder()
+                .id("usr-abc123")
+                .name("")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("test@example.com")
+                .build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Name cannot be empty");
+    }
+
+    @Test
+    void shouldThrowWhenNameIsBlank() {
+        assertThatThrownBy(() -> User.builder()
+                .id("usr-abc123")
+                .name("   ")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("test@example.com")
+                .build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Name cannot be empty");
+    }
+
+    @Test
+    void shouldThrowWhenEmailIsEmpty() {
+        assertThatThrownBy(() -> User.builder()
+                .id("usr-abc123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("")
+                .build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Email cannot be empty");
+    }
+
+    @Test
+    void shouldThrowWhenEmailIsBlank() {
+        assertThatThrownBy(() -> User.builder()
+                .id("usr-abc123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("   ")
+                .build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Email cannot be empty");
+    }
+
+    @Test
+    void shouldThrowWhenPhoneNumberIsEmpty() {
+        assertThatThrownBy(() -> User.builder()
+                .id("usr-abc123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber("")
+                .email("test@example.com")
+                .build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Phone number cannot be empty");
+    }
+
+    @Test
+    void shouldThrowWhenPhoneNumberIsBlank() {
+        assertThatThrownBy(() -> User.builder()
+                .id("usr-abc123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber("   ")
+                .email("test@example.com")
+                .build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Phone number cannot be empty");
+    }
+
+    @Test
+    void shouldThrowWhenUserIdIsEmpty() {
+        assertThatThrownBy(() -> User.builder()
+                .id("")
+                .name("Test User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("test@example.com")
+                .build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("User ID cannot be empty");
+    }
+
+    @Test
+    void shouldThrowWhenUserIdIsBlank() {
+        assertThatThrownBy(() -> User.builder()
+                .id("   ")
+                .name("Test User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("test@example.com")
+                .build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("User ID cannot be empty");
+    }
+
+    /**
+     * Tests the validation of maximum lengths for User attributes.
+     */
+
+    @Test
+    void shouldThrowWhenUserIdExceedsMaxLength() {
+        String longUserId = "usr-" + "a".repeat(251); // Assuming 255 char limit
+        assertThatThrownBy(() -> User.builder()
+                .id(longUserId)
+                .name("Test User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("test@example.com")
+                .build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("User ID exceeds maximum length");
+    }
+
+    @Test
+    void shouldThrowWhenNameExceedsMaxLength() {
+        String longName = "a".repeat(256); // Assuming 255 char limit
+        assertThatThrownBy(() -> User.builder()
+                .id("usr-abc123")
+                .name(longName)
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("test@example.com")
+                .build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Name exceeds maximum length");
+    }
+
+    @Test
+    void shouldThrowWhenEmailExceedsMaxLength() {
+        String longEmail = "a".repeat(240) + "@example.com"; // Assuming 255 char limit
+        assertThatThrownBy(() -> User.builder()
+                .id("usr-abc123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email(longEmail)
+                .build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Email exceeds maximum length");
+    }
+
+    @Test
+    void shouldThrowWhenPhoneNumberExceedsMaxLength() {
+        String longPhoneNumber = "+1" + "1".repeat(48); // Assuming 50 char limit
+        assertThatThrownBy(() -> User.builder()
+                .id("usr-abc123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber(longPhoneNumber)
+                .email("test@example.com")
+                .build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Phone number exceeds maximum length");
+    }
+
+    @Test
+    void shouldAcceptMaxAllowedLengths() {
+        String maxUserId = "usr-" + "a".repeat(250); // Just under limit
+        String maxName = "a".repeat(255);
+        String maxEmail = "a".repeat(243) + "@example.com"; // Just under limit
+        String maxPhoneNumber = "+1" + "1".repeat(47); // Just under limit
+
+        User validUser = User.builder()
+                .id(maxUserId)
+                .name(maxName)
+                .address(address)
+                .phoneNumber(maxPhoneNumber)
+                .email(maxEmail)
+                .createdTimestamp(LocalDateTime.now())
+                .updatedTimestamp(LocalDateTime.now())
+                .build();
+
+        assertThat(validUser).isNotNull();
+        assertThat(validUser.getId()).isEqualTo(maxUserId);
+        assertThat(validUser.getName()).isEqualTo(maxName);
+        assertThat(validUser.getEmail()).isEqualTo(maxEmail);
+        assertThat(validUser.getPhoneNumber()).isEqualTo(maxPhoneNumber);
+    }
+
+    /**
+     * Edge Case Validation Tests.
+     */
+    @Test
+    void shouldValidateUserIdWithNumbers() {
+        User validUser = User.builder()
+                .id("usr-123456")
+                .name("Test User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("test@example.com")
+                .createdTimestamp(LocalDateTime.now())
+                .updatedTimestamp(LocalDateTime.now())
+                .build();
+
+        assertThat(validUser.getId()).isEqualTo("usr-123456");
+    }
+
+    @Test
+    void shouldValidateUserIdWithMixedCase() {
+        User validUser = User.builder()
+                .id("usr-AbC123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("test@example.com")
+                .createdTimestamp(LocalDateTime.now())
+                .updatedTimestamp(LocalDateTime.now())
+                .build();
+
+        assertThat(validUser.getId()).isEqualTo("usr-AbC123");
+    }
+
+    @Test
+    void shouldThrowWhenUserIdHasSpecialCharacters() {
+        assertThatThrownBy(() -> User.builder()
+                .id("usr-abc@123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("test@example.com")
+                .build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("User ID must match pattern");
+    }
+
+    @Test
+    void shouldThrowWhenUserIdHasSpaces() {
+        assertThatThrownBy(() -> User.builder()
+                .id("usr abc123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("test@example.com")
+                .build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("User ID must match pattern");
+    }
+
+    /**
+     * Tests the validation of phone numbers.
+     */
+    @Test
+    void shouldValidateMinimumPhoneNumber() {
+        User validUser = User.builder()
+                .id("usr-abc123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber("+12")
+                .email("test@example.com")
+                .createdTimestamp(LocalDateTime.now())
+                .updatedTimestamp(LocalDateTime.now())
+                .build();
+        
+        assertThat(validUser.getPhoneNumber()).isEqualTo("+12");
+    }
+
+    @Test
+    void shouldValidateMaximumPhoneNumber() {
+        String maxPhone = "+1" + "2".repeat(14); // 15 digits total
+        User validUser = User.builder()
+                .id("usr-abc123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber(maxPhone)
+                .email("test@example.com")
+                .createdTimestamp(LocalDateTime.now())
+                .updatedTimestamp(LocalDateTime.now())
+                .build();
+        
+        assertThat(validUser.getPhoneNumber()).isEqualTo(maxPhone);
+    }
+
+    @Test
+    void shouldThrowWhenPhoneNumberStartsWithZero() {
+        assertThatThrownBy(() -> User.builder()
+                .id("usr-abc123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber("+0123456789")
+                .email("test@example.com")
+                .build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Phone number must be in international format");
+    }
+
+    @Test
+    void shouldThrowWhenPhoneNumberTooLong() {
+        String tooLongPhone = "+1" + "2".repeat(15); // 16 digits total
+        assertThatThrownBy(() -> User.builder()
+                .id("usr-abc123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber(tooLongPhone)
+                .email("test@example.com")
+                .build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Phone number must be in international format");
+    }
+
+    @Test
+    void shouldThrowWhenPhoneNumberMissingPlus() {
+        assertThatThrownBy(() -> User.builder()
+                .id("usr-abc123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber("44123456789")
+                .email("test@example.com")
+                .build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Phone number must be in international format");
+    }
+
+    /**
+     * Tests the validation of email addresses with various formats.
+     */
+    @Test
+    void shouldValidateEmailWithPlus() {
+        User validUser = User.builder()
+                .id("usr-abc123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("test+tag@example.com")
+                .createdTimestamp(LocalDateTime.now())
+                .updatedTimestamp(LocalDateTime.now())
+                .build();
+
+        assertThat(validUser.getEmail()).isEqualTo("test+tag@example.com");
+    }
+
+    @Test
+    void shouldValidateEmailWithUnderscore() {
+        User validUser = User.builder()
+                .id("usr-abc123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("test_user@example.com")
+                .createdTimestamp(LocalDateTime.now())
+                .updatedTimestamp(LocalDateTime.now())
+                .build();
+
+        assertThat(validUser.getEmail()).isEqualTo("test_user@example.com");
+    }
+
+    @Test
+    void shouldValidateEmailWithDot() {
+        User validUser = User.builder()
+                .id("usr-abc123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("test.user@example.com")
+                .createdTimestamp(LocalDateTime.now())
+                .updatedTimestamp(LocalDateTime.now())
+                .build();
+
+        assertThat(validUser.getEmail()).isEqualTo("test.user@example.com");
+    }
+
+    @Test
+    void shouldThrowWhenEmailMissingAtSymbol() {
+        assertThatThrownBy(() -> User.builder()
+                .id("usr-abc123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("testexample.com")
+                .build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Email must be in valid format");
+    }
+
+    @Test
+    void shouldThrowWhenEmailMissingDomain() {
+        assertThatThrownBy(() -> User.builder()
+                .id("usr-abc123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("test@")
+                .build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Email must be in valid format");
+    }
+
+    @Test
+    void shouldThrowWhenEmailHasInvalidTLD() {
+        assertThatThrownBy(() -> User.builder()
+                .id("usr-abc123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("test@example.x")
+                .build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Email must be in valid format");
+    }
+
+    /**
+     * Tests the creation of a User with minimal required fields.
+     * It checks if the user is created successfully without optional fields.
+     */
+    @Test
+    void shouldCreateUserWithMinimalRequiredFields() {
+        User minimalUser = User.builder()
+                .id("usr-min")
+                .name("Min User")
+                .address(address)
+                .phoneNumber("+12")
+                .email("min@example.com")
+                .build();
+
+        assertThat(minimalUser.getId()).isEqualTo("usr-min");
+        assertThat(minimalUser.getName()).isEqualTo("Min User");
+        assertThat(minimalUser.getCreatedTimestamp()).isNull();
+        assertThat(minimalUser.getUpdatedTimestamp()).isNull();
+    }
+
+    /**
+     * Tests the handling of created and updated timestamps in User class.
+     * It checks if the timestamps are set correctly during user creation.
+     */
+    @Test
+    void shouldHandleTimestamps() {
+        LocalDateTime now = LocalDateTime.now();
+        User userWithTimestamps = User.builder()
+                .id("usr-timestamp")
+                .name("Timestamp User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("timestamp@example.com")
+                .createdTimestamp(now)
+                .updatedTimestamp(now)
+                .build();
+
+        assertThat(userWithTimestamps.getCreatedTimestamp()).isEqualTo(now);
+        assertThat(userWithTimestamps.getUpdatedTimestamp()).isEqualTo(now);
+    }
+
+    @Test
+    void shouldAllowDifferentTimestamps() {
+        LocalDateTime created = LocalDateTime.now().minusDays(1);
+        LocalDateTime updated = LocalDateTime.now();
+
+        User userWithDifferentTimestamps = User.builder()
+                .id("usr-diff-timestamps")
+                .name("Different Timestamps User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("diff@example.com")
+                .createdTimestamp(created)
+                .updatedTimestamp(updated)
+                .build();
+
+        assertThat(userWithDifferentTimestamps.getCreatedTimestamp()).isEqualTo(created);
+        assertThat(userWithDifferentTimestamps.getUpdatedTimestamp()).isEqualTo(updated);
+        assertThat(userWithDifferentTimestamps.getUpdatedTimestamp())
+                .isAfter(userWithDifferentTimestamps.getCreatedTimestamp());
+    }
+
+    /**
+     * Tests the implementation of equals method in User class.
+     * It checks if two User objects with the same attributes are considered equal.
+     */
+    @Test
+    void shouldImplementEqualsCorrectly() {
+        User user1 = User.builder()
+                .id("usr-same")
+                .name("Same User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("same@example.com")
+                .build();
+
+        User user2 = User.builder()
+                .id("usr-same")
+                .name("Same User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("same@example.com")
+                .build();
+
+        assertThat(user1).isEqualTo(user2);
+    }
+
+    @Test
+    void shouldImplementHashCodeCorrectly() {
+        User user1 = User.builder()
+                .id("usr-hash")
+                .name("Hash User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("hash@example.com")
+                .build();
+
+        User user2 = User.builder()
+                .id("usr-hash")
+                .name("Hash User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("hash@example.com")
+                .build();
+
+        assertThat(user1.hashCode()).isEqualTo(user2.hashCode());
+    }
+
+    @Test
+    void shouldNotBeEqualWhenDifferentIds() {
+        User user1 = User.builder()
+                .id("usr-different1")
+                .name("Same User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("same@example.com")
+                .build();
+
+        User user2 = User.builder()
+                .id("usr-different2")
+                .name("Same User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("same@example.com")
+                .build();
+
+        assertThat(user1).isNotEqualTo(user2);
+        assertThat(user1.hashCode()).isNotEqualTo(user2.hashCode());
+    }
+
+    @Test
+    void shouldNotBeEqualToNull() {
+        assertThat(user).isNotEqualTo(null);
+    }
+
+    @Test
+    void shouldNotBeEqualToDifferentClass() {
+        assertThat(user).isNotEqualTo("not a user");
+    }
+
+    @Test
+    void shouldBeEqualToItself() {
+        assertThat(user).isEqualTo(user);
+    }
 } 
