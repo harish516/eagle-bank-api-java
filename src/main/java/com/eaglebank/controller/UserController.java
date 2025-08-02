@@ -4,6 +4,14 @@ import com.eaglebank.dto.CreateUserRequest;
 import com.eaglebank.dto.UpdateUserRequest;
 import com.eaglebank.dto.UserResponse;
 import com.eaglebank.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,11 +26,19 @@ import java.util.List;
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "User Management", description = "APIs for managing users in the Eagle Bank system")
 public class UserController extends BaseController {
 
     private final UserService userService;
 
     @PostMapping
+    @Operation(summary = "Create a new user", description = "Creates a new user account in the system")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "User created successfully",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponse.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid input data"),
+        @ApiResponse(responseCode = "409", description = "User with email already exists")
+    })
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
         log.info("Creating user with email: {}", request.getEmail());
         UserResponse response = userService.createUser(request);
@@ -30,7 +46,19 @@ public class UserController extends BaseController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable String userId, Authentication authentication) {
+    @Operation(summary = "Get user by ID", description = "Retrieves user details by user ID. Users can only access their own data.")
+    @SecurityRequirement(name = "bearerAuth")
+    @SecurityRequirement(name = "oauth2")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "User found",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponse.class))),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden - User can only access their own data"),
+        @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    public ResponseEntity<UserResponse> getUserById(
+            @Parameter(description = "User ID", required = true) @PathVariable String userId, 
+            Authentication authentication) {
         log.info("Getting user by ID: {}", userId);
         
         // Extract email from JWT token (this should be the primary identifier)
@@ -65,9 +93,21 @@ public class UserController extends BaseController {
     }
 
     @PatchMapping("/{userId}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable String userId, 
-                                                 @Valid @RequestBody UpdateUserRequest request,
-                                                 Authentication authentication) {
+    @Operation(summary = "Update user", description = "Updates user details. Users can only update their own data.")
+    @SecurityRequirement(name = "bearerAuth")
+    @SecurityRequirement(name = "oauth2")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "User updated successfully",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponse.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid input data"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden - User can only update their own data"),
+        @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    public ResponseEntity<UserResponse> updateUser(
+            @Parameter(description = "User ID", required = true) @PathVariable String userId, 
+            @Valid @RequestBody UpdateUserRequest request,
+            Authentication authentication) {
         log.info("Updating user with ID: {}", userId);
         
         // Extract email from JWT token
@@ -102,7 +142,19 @@ public class UserController extends BaseController {
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> deleteUser(@PathVariable String userId, Authentication authentication) {
+    @Operation(summary = "Delete user", description = "Deletes a user account. Users can only delete their own account.")
+    @SecurityRequirement(name = "bearerAuth")
+    @SecurityRequirement(name = "oauth2")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "User deleted successfully"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden - User can only delete their own account"),
+        @ApiResponse(responseCode = "404", description = "User not found"),
+        @ApiResponse(responseCode = "409", description = "Conflict - Cannot delete user with associated accounts")
+    })
+    public ResponseEntity<Void> deleteUser(
+            @Parameter(description = "User ID", required = true) @PathVariable String userId, 
+            Authentication authentication) {
         log.info("Deleting user with ID: {}", userId);
         
         // Extract email from JWT token
@@ -143,6 +195,15 @@ public class UserController extends BaseController {
     }
 
     @GetMapping("/me")
+    @Operation(summary = "Get current user", description = "Retrieves the details of the currently authenticated user")
+    @SecurityRequirement(name = "bearerAuth")
+    @SecurityRequirement(name = "oauth2")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Current user details",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponse.class))),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "404", description = "Authenticated user not found in database")
+    })
     public ResponseEntity<UserResponse> getCurrentUser(Authentication authentication) {
         log.info("Getting current user details");
         
@@ -163,6 +224,11 @@ public class UserController extends BaseController {
     }
 
     @GetMapping
+    @Operation(summary = "Get all users", description = "Retrieves a list of all users (Admin operation)")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "List of users",
+                content = @Content(mediaType = "application/json"))
+    })
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         log.info("Getting all users");
         List<UserResponse> response = userService.getAllUsers();

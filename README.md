@@ -7,6 +7,7 @@ A Spring Boot REST API for Eagle Bank with Keycloak integration, following Test-
 - **Spring Boot 3.2.0** with Java 21
 - **Keycloak OAuth2** integration for authentication and authorization
 - **PostgreSQL** database with H2 for testing
+- **Swagger/OpenAPI UI** for interactive API documentation and testing
 - **Test-Driven Development (TDD)** approach
 - **Dev Container** support for consistent development environment
 - **Docker Compose** for local development
@@ -141,6 +142,34 @@ curl -X POST "http://localhost:8180/realms/eagle-bank/protocol/openid-connect/to
   -H "Content-Type: application/x-www-form-urlencoded" \
   -d "grant_type=password&client_id=eagle-bank-api&username=testuser&password=Test1234"
 ```
+
+## API Documentation & Testing
+
+### Swagger UI (Interactive API Documentation)
+
+The Eagle Bank API includes **Swagger UI** for interactive API documentation and testing:
+
+- **Swagger UI**: http://localhost:8080/eagle-bank/swagger-ui.html
+- **OpenAPI JSON**: http://localhost:8080/eagle-bank/api-docs
+
+**Features:**
+- 🔍 **Browse all API endpoints** with detailed documentation
+- 🧪 **Test APIs directly** from the browser (no Postman needed!)
+- � **OAuth2 Login** - authenticate with username/password (no manual JWT tokens!)
+- 🔑 **JWT Bearer Token support** for advanced users
+- 📋 **Request/Response examples** with validation
+- 📊 **Data models** with schema definitions
+
+**Quick Start with Swagger UI:**
+
+1. Start the application: `./mvnw spring-boot:run`
+2. Open http://localhost:8080/eagle-bank/swagger-ui.html in your browser
+3. Create a test user in Keycloak (see detailed guide below)
+4. Use `POST /api/v1/users` to create a test user (no auth required)
+5. Click **"Authorize"** in Swagger UI → **"oauth2"** → enter username/password
+6. Test protected endpoints like `GET /api/v1/users/me`
+
+📖 **Detailed Guide**: [docs/SWAGGER_GUIDE.md](docs/SWAGGER_GUIDE.md)
 
 ## API Endpoints
 

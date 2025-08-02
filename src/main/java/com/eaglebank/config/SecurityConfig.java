@@ -24,6 +24,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/users").permitAll() // Allow user registration
                 .requestMatchers("/actuator/**").permitAll() // Allow health checks
                 .requestMatchers("/h2-console/**").permitAll() // Allow H2 console in dev
+                .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**", "/v3/api-docs/**").permitAll() // Allow Swagger UI
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2

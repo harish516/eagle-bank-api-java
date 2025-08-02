@@ -1,6 +1,7 @@
 package com.eaglebank.dto;
 
 import com.eaglebank.domain.Address;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -14,20 +15,25 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Request object for creating a new user")
 public class CreateUserRequest {
 
     @NotBlank(message = "Name is required")
+    @Schema(description = "Full name of the user", example = "John Doe", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
 
     @Valid
+    @Schema(description = "User's address information")
     private Address address;
 
     @NotBlank(message = "Phone number is required")
     @Pattern(regexp = "^\\+[1-9]\\d{1,14}$", 
              message = "Phone number must be in international format")
+    @Schema(description = "Phone number in international format", example = "+1234567890", requiredMode = Schema.RequiredMode.REQUIRED)
     private String phoneNumber;
 
     @NotBlank(message = "Email is required")
     @Email(message = "Email must be in valid format")
+    @Schema(description = "Email address", example = "john.doe@example.com", requiredMode = Schema.RequiredMode.REQUIRED)
     private String email;
 } 

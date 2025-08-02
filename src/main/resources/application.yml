@@ -27,6 +27,24 @@ spring:
           issuer-uri: http://localhost:8180/realms/eagle-bank
           jwk-set-uri: http://localhost:8180/realms/eagle-bank/protocol/openid-connect/certs
 
+# SpringDoc OpenAPI configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    try-it-out-enabled: true
+    filter: true
+    operations-sorter: alpha
+    tags-sorter: alpha
+    oauth:
+      client-id: eagle-bank-api
+      use-pkce-with-authorization-code-grant: false
+  show-actuator: false
+  server:
+    url: http://localhost:8080/eagle-bank
+
 keycloak:
   auth-server-url: http://localhost:8180
   realm: eagle-bank
