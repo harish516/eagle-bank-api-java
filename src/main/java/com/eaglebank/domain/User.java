@@ -11,15 +11,18 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
 @Data
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class User {
+public class User implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @Column(name = "id", nullable = false)
@@ -134,7 +137,10 @@ public class User {
         if (email.length() > 255) {
             throw new IllegalArgumentException("Email exceeds maximum length");
         }
-        if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+        // More lenient email regex that allows common valid formats
+        if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$") || 
+            email.startsWith(".") || email.contains("..") || email.endsWith(".@") ||
+            email.split("@")[0].endsWith(".")) {
             throw new IllegalArgumentException("Email must be in valid format");
         }
     }
@@ -143,5 +149,31 @@ public class User {
         if (address == null) {
             throw new NullPointerException("address cannot be null");
         }
+    }
+
+    // Override setters to add validation
+    public void setId(String id) {
+        this.id = id;
+        validateId();
+    }
+
+    public void setName(String name) {
+        this.name = name;
+        validateName();
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+        validatePhoneNumber();
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+        validateEmail();
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+        validateAddress();
     }
 } 

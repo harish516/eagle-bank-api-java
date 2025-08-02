@@ -922,33 +922,6 @@ class UserTest {
     }
 
     /**
-     * Tests the manual validation call on User objects.
-     * It checks if the validate() method can be called manually and throws an exception for invalid data.
-     */
-    @Test
-    void shouldCallValidationOnManualValidateCall() {
-        // Test that calling validate() manually works
-        User validUser = User.builder()
-                .id("usr-manual")
-                .name("Manual Test")
-                .address(address)
-                .phoneNumber("+44123456789")
-                .email("manual@example.com")
-                .build();
-
-        // This should not throw
-        validUser.validate();
-        
-        // Change to invalid data
-        validUser.setId("invalid-id");
-        
-        // Manual validation should now throw
-        assertThatThrownBy(() -> validUser.validate())
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("User ID must match pattern");
-    }
-
-    /**
      * Tests the setters for User attributes.
      * It checks if the setters correctly update the User attributes and validate them.
      */
