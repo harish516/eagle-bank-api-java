@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -50,9 +51,22 @@ public class UserService {
 
     public UserResponse getUserById(String userId) {
         log.info("Getting user by ID: {}", userId);
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
-        return mapToUserResponse(user);
+        
+        // Validate user ID
+        if (userId == null || userId.trim().isEmpty()) {
+            throw new IllegalArgumentException("User ID must not be null or empty");
+        }
+        
+        try {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+            return mapToUserResponse(user);
+        } catch (Exception e) {
+            if (e instanceof IllegalArgumentException) {
+                throw e; // Re-throw validation exceptions
+            }
+            throw new IllegalStateException("Failed to retrieve user with ID: " + userId, e);
+        }
     }
 
     public UserResponse updateUser(String userId, UpdateUserRequest request) {
@@ -70,6 +84,11 @@ public class UserService {
             user.setPhoneNumber(request.getPhoneNumber());
         }
         if (request.getEmail() != null) {
+            // Check if email is already in use by another user
+            Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
+            if (existingUser.isPresent() && !existingUser.get().getId().equals(userId)) {
+                throw new IllegalArgumentException("Email already in use by another user");
+            }
             user.setEmail(request.getEmail());
         }
 

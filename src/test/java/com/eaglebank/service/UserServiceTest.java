@@ -290,8 +290,24 @@ class UserServiceTest {
                 .email("existing@example.com")
                 .build();
 
+        // Create a different user with the email we're trying to update to
+        Address differentAddress = Address.builder()
+                .line1("456 Different Street")
+                .town("Manchester")
+                .county("Greater Manchester")
+                .postcode("M1 1AA")
+                .build();
+                
+        User differentUser = User.builder()
+                .id("usr-different")
+                .name("Different User")
+                .address(differentAddress)
+                .phoneNumber("+44987654321")
+                .email("existing@example.com")
+                .build();
+
         when(userRepository.findById("usr-abc123")).thenReturn(Optional.of(testUser));
-        when(userRepository.findByEmail("existing@example.com")).thenReturn(Optional.of(testUser));
+        when(userRepository.findByEmail("existing@example.com")).thenReturn(Optional.of(differentUser));
 
         assertThatThrownBy(() -> userService.updateUser("usr-abc123", partialUpdate))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -407,15 +423,41 @@ class UserServiceTest {
     @Test
     void shouldPreserveUserTimestampsCorrectly() {
         // Test createdTimestamp preservation during updates
+        LocalDateTime originalCreatedTime = LocalDateTime.now().minusDays(1);
+        LocalDateTime originalUpdatedTime = LocalDateTime.now().minusHours(1);
+        
+        testUser.setCreatedTimestamp(originalCreatedTime);
+        testUser.setUpdatedTimestamp(originalUpdatedTime);
+        
         when(userRepository.findById("usr-abc123")).thenReturn(Optional.of(testUser));
-        when(userRepository.save(any(User.class))).thenReturn(testUser);    
+        when(userRepository.save(any(User.class))).thenReturn(testUser);
+
+        UserResponse result = userService.updateUser("usr-abc123", updateUserRequest);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getCreatedTimestamp()).isEqualTo(originalCreatedTime);
+        assertThat(result.getUpdatedTimestamp()).isAfter(originalUpdatedTime);
+
+        verify(userRepository).findById("usr-abc123");
+        verify(userRepository).save(any(User.class));
     }
 
     @Test
     void shouldUpdateTimestampOnUserUpdate() {
         // Test updatedTimestamp is updated correctly
+        LocalDateTime originalUpdatedTime = LocalDateTime.now().minusHours(1);
+        testUser.setUpdatedTimestamp(originalUpdatedTime);
+        
         when(userRepository.findById("usr-abc123")).thenReturn(Optional.of(testUser));
-        when(userRepository.save(any(User.class))).thenReturn(testUser);    
+        when(userRepository.save(any(User.class))).thenReturn(testUser);
+
+        UserResponse result = userService.updateUser("usr-abc123", updateUserRequest);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getUpdatedTimestamp()).isAfter(originalUpdatedTime);
+
+        verify(userRepository).findById("usr-abc123");
+        verify(userRepository).save(any(User.class));
     }
 
 } 
