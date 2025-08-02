@@ -122,6 +122,26 @@ eagle-bank-api-java/
    - Email: `test@example.com`
    - Set password in "Credentials" tab
 
+### Getting Authentication Token
+
+To get an authentication token using Postman:
+
+1. **Method**: POST
+2. **URL**: `http://localhost:8180/realms/eagle-bank/protocol/openid-connect/token`
+3. **Headers**: `Content-Type: application/x-www-form-urlencoded`
+4. **Body** (form-data):
+   - `grant_type`: `password`
+   - `client_id`: `eagle-bank-api`
+   - `username`: `testuser`
+   - `password`: `Test1234`
+
+**Example cURL command:**
+```bash
+curl -X POST "http://localhost:8180/realms/eagle-bank/protocol/openid-connect/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=password&client_id=eagle-bank-api&username=testuser&password=Test1234"
+```
+
 ## API Endpoints
 
 ### Users

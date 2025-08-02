@@ -15,9 +15,15 @@ spring:
   h2:
     console:
       enabled: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://eagle-bank-keycloak:8180/realms/eagle-bank
+          jwk-set-uri: http://eagle-bank-keycloak:8180/realms/eagle-bank/protocol/openid-connect/certs
 
 keycloak:
-  auth-server-url: http://localhost:8180
+  auth-server-url: http://eagle-bank-keycloak:8180
   realm: eagle-bank
   resource: eagle-bank-api
   public-client: true
