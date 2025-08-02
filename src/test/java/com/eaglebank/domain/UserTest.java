@@ -5,7 +5,14 @@ import org.junit.jupiter.api.BeforeEach;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.time.LocalDateTime;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 class UserTest {
 
@@ -420,6 +427,34 @@ class UserTest {
                 .hasMessageContaining("User ID must match pattern");
     }
 
+    @Test
+    void shouldAcceptUserIdAtExactMaxLength() {
+        String maxLengthUserId = "usr-" + "a".repeat(251); // Exactly 255 chars
+        User validUser = User.builder()
+                .id(maxLengthUserId)
+                .name("Test User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("test@example.com")
+                .build();
+
+        assertThat(validUser.getId()).isEqualTo(maxLengthUserId);
+    }
+
+    @Test
+    void shouldAcceptNameAtExactMaxLength() {
+        String maxLengthName = "a".repeat(255); // Exactly 255 chars
+        User validUser = User.builder()
+                .id("usr-abc123")
+                .name(maxLengthName)
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("test@example.com")
+                .build();
+
+        assertThat(validUser.getName()).isEqualTo(maxLengthName);
+    }
+
     /**
      * Tests the validation of phone numbers.
      */
@@ -492,6 +527,32 @@ class UserTest {
                 .build())
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Phone number must be in international format");
+    }
+
+    @Test
+    void shouldThrowWhenPhoneNumberTooShort() {
+        assertThatThrownBy(() -> User.builder()
+                .id("usr-abc123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber("+1")
+                .email("test@example.com")
+                .build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Phone number must be in international format");
+    }
+
+    @Test
+    void shouldValidatePhoneNumberWithCountryCode999() {
+        User validUser = User.builder()
+                .id("usr-abc123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber("+999123456789")
+                .email("test@example.com")
+                .build();
+
+        assertThat(validUser.getPhoneNumber()).isEqualTo("+999123456789");
     }
 
     /**
@@ -576,6 +637,58 @@ class UserTest {
                 .address(address)
                 .phoneNumber("+44123456789")
                 .email("test@example.x")
+                .build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Email must be in valid format");
+    }
+
+    @Test
+    void shouldValidateEmailWithNumbers() {
+        User validUser = User.builder()
+                .id("usr-abc123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("user123@example123.com")
+                .build();
+
+        assertThat(validUser.getEmail()).isEqualTo("user123@example123.com");
+    }
+
+    @Test
+    void shouldValidateEmailWithLongTLD() {
+        User validUser = User.builder()
+                .id("usr-abc123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("test@example.museum")
+                .build();
+
+        assertThat(validUser.getEmail()).isEqualTo("test@example.museum");
+    }
+
+    @Test
+    void shouldThrowWhenEmailStartsWithDot() {
+        assertThatThrownBy(() -> User.builder()
+                .id("usr-abc123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email(".test@example.com")
+                .build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Email must be in valid format");
+    }
+
+    @Test
+    void shouldThrowWhenEmailEndsWithDot() {
+        assertThatThrownBy(() -> User.builder()
+                .id("usr-abc123")
+                .name("Test User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("test.@example.com")
                 .build())
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Email must be in valid format");
@@ -724,5 +837,147 @@ class UserTest {
     @Test
     void shouldBeEqualToItself() {
         assertThat(user).isEqualTo(user);
+    }
+    
+    /**
+     * Tests the serialization and deserialization of User objects.
+     * It checks if a User object can be serialized to a byte stream and then deserialized
+     * @throws Exception
+     */
+    @Test
+    void shouldSerializeAndDeserialize() throws Exception {
+        // Test that User objects can be serialized (if Serializable is implemented)
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(user);
+        oos.close();
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        ObjectInputStream ois = new ObjectInputStream(bais);
+        User deserializedUser = (User) ois.readObject();
+        ois.close();
+
+        assertThat(deserializedUser).isEqualTo(user);
+    }
+
+    /**
+     * Tests the toBuilder pattern in User class.
+     * It checks if a User object can be copied and modified using the toBuilder method.
+     */
+    @Test
+    void shouldSupportToBuilderPattern() {
+        User originalUser = User.builder()
+                .id("usr-original")
+                .name("Original User")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("original@example.com")
+                .build();
+
+        User copiedUser = originalUser.toBuilder()
+                .name("Copied User")
+                .email("copied@example.com")
+                .build();
+
+        assertThat(copiedUser.getId()).isEqualTo("usr-original"); // Same ID
+        assertThat(copiedUser.getName()).isEqualTo("Copied User"); // Changed name
+        assertThat(copiedUser.getEmail()).isEqualTo("copied@example.com"); // Changed email
+        assertThat(copiedUser.getPhoneNumber()).isEqualTo("+44123456789"); // Same phone
+    }
+
+    /**
+     * Tests the concurrent validation of User objects.
+     * It checks if multiple threads can create User objects without any issues.
+     * @throws InterruptedException
+     */
+    @Test
+    void shouldHandleConcurrentValidation() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(10);
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger failureCount = new AtomicInteger(0);
+
+        for (int i = 0; i < 10; i++) {
+            final int index = i;
+            new Thread(() -> {
+                try {
+                    User user = User.builder()
+                            .id("usr-thread" + index)
+                            .name("Thread User " + index)
+                            .address(address)
+                            .phoneNumber("+44123456789")
+                            .email("thread" + index + "@example.com")
+                            .build();
+                    successCount.incrementAndGet();
+                } catch (Exception e) {
+                    failureCount.incrementAndGet();
+                } finally {
+                    latch.countDown();
+                }
+            }).start();
+        }
+
+        latch.await(5, TimeUnit.SECONDS);
+        assertThat(successCount.get()).isEqualTo(10);
+        assertThat(failureCount.get()).isEqualTo(0);
+    }
+
+    /**
+     * Tests the manual validation call on User objects.
+     * It checks if the validate() method can be called manually and throws an exception for invalid data.
+     */
+    @Test
+    void shouldCallValidationOnManualValidateCall() {
+        // Test that calling validate() manually works
+        User validUser = User.builder()
+                .id("usr-manual")
+                .name("Manual Test")
+                .address(address)
+                .phoneNumber("+44123456789")
+                .email("manual@example.com")
+                .build();
+
+        // This should not throw
+        validUser.validate();
+        
+        // Change to invalid data
+        validUser.setId("invalid-id");
+        
+        // Manual validation should now throw
+        assertThatThrownBy(() -> validUser.validate())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("User ID must match pattern");
+    }
+
+    /**
+     * Tests the setters for User attributes.
+     * It checks if the setters correctly update the User attributes and validate them.
+     */
+
+    @Test
+    void shouldThrowWhenSettingInvalidUserId() {
+        assertThatThrownBy(() -> user.setId("invalid-id"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("User ID must match pattern");
+    }
+
+    @Test
+    void shouldThrowWhenSettingNullName() {
+        assertThatThrownBy(() -> user.setName(null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("name");
+    }
+
+    @Test
+    void shouldThrowWhenSettingInvalidEmail() {
+        assertThatThrownBy(() -> user.setEmail("invalid-email"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Email must be in valid format");
+    }
+
+    @Test
+    void shouldThrowWhenSettingInvalidPhoneNumber() {
+        assertThatThrownBy(() -> user.setPhoneNumber("invalid-phone"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Phone number must be in international format");
     }
 } 
