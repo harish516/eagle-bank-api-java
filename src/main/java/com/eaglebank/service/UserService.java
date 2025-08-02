@@ -1,9 +1,11 @@
 package com.eaglebank.service;
 
+import com.eaglebank.domain.BankAccount;
 import com.eaglebank.domain.User;
 import com.eaglebank.dto.CreateUserRequest;
 import com.eaglebank.dto.UpdateUserRequest;
 import com.eaglebank.dto.UserResponse;
+import com.eaglebank.repository.BankAccountRepository;
 import com.eaglebank.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final BankAccountRepository bankAccountRepository;
 
     public UserResponse createUser(CreateUserRequest request) {
         log.info("Creating user with email: {}", request.getEmail());
@@ -92,10 +95,9 @@ public class UserService {
     }
     
     private boolean hasAssociatedBankAccounts(String userId) {
-        // TODO: Placeholder implementation - in real scenario this would check BankAccount repository
-        // For testing purposes, we'll assume all users have associated accounts
-        // This can be modified when BankAccount entity and repository are implemented
-        return true; // Simulate that user has associated accounts
+        // Check if the user has any associated bank accounts
+        List<BankAccount> userAccounts = bankAccountRepository.findByUserId(userId);
+        return !userAccounts.isEmpty();
     }
 
     public List<UserResponse> getAllUsers() {
