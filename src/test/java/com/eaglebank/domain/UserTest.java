@@ -283,7 +283,7 @@ class UserTest {
 
     @Test
     void shouldThrowWhenUserIdExceedsMaxLength() {
-        String longUserId = "usr-" + "a".repeat(251); // Assuming 255 char limit
+        String longUserId = "usr-" + "a".repeat(252); // 256 chars total, exceeds 255 limit
         assertThatThrownBy(() -> User.builder()
                 .id(longUserId)
                 .name("Test User")
@@ -311,7 +311,7 @@ class UserTest {
 
     @Test
     void shouldThrowWhenEmailExceedsMaxLength() {
-        String longEmail = "a".repeat(240) + "@example.com"; // Assuming 255 char limit
+        String longEmail = "a".repeat(250) + "@example.com"; // 262 chars total, exceeds 255 limit
         assertThatThrownBy(() -> User.builder()
                 .id("usr-abc123")
                 .name("Test User")
@@ -325,7 +325,7 @@ class UserTest {
 
     @Test
     void shouldThrowWhenPhoneNumberExceedsMaxLength() {
-        String longPhoneNumber = "+1" + "1".repeat(48); // Assuming 50 char limit
+        String longPhoneNumber = "+1" + "2".repeat(15); // 17 chars total, exceeds 16 char limit
         assertThatThrownBy(() -> User.builder()
                 .id("usr-abc123")
                 .name("Test User")
@@ -342,7 +342,7 @@ class UserTest {
         String maxUserId = "usr-" + "a".repeat(250); // Just under limit
         String maxName = "a".repeat(255);
         String maxEmail = "a".repeat(243) + "@example.com"; // Just under limit
-        String maxPhoneNumber = "+1" + "1".repeat(47); // Just under limit
+        String maxPhoneNumber = "+1" + "2".repeat(14); // 16 chars total, at limit
 
         User validUser = User.builder()
                 .id(maxUserId)
@@ -469,7 +469,7 @@ class UserTest {
 
     @Test
     void shouldThrowWhenPhoneNumberTooLong() {
-        String tooLongPhone = "+1" + "2".repeat(15); // 16 digits total
+        String tooLongPhone = "+1234567890123456"; // 17 chars: + plus 16 digits (exceeds both 16 char limit and 15 digit regex limit)
         assertThatThrownBy(() -> User.builder()
                 .id("usr-abc123")
                 .name("Test User")
@@ -478,7 +478,7 @@ class UserTest {
                 .email("test@example.com")
                 .build())
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Phone number must be in international format");
+                .hasMessageContaining("Phone number exceeds maximum length");
     }
 
     @Test
@@ -628,7 +628,7 @@ class UserTest {
         LocalDateTime updated = LocalDateTime.now();
 
         User userWithDifferentTimestamps = User.builder()
-                .id("usr-diff-timestamps")
+                .id("usr-difftimestamps")
                 .name("Different Timestamps User")
                 .address(address)
                 .phoneNumber("+44123456789")
