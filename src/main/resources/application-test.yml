@@ -1,0 +1,36 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: false
+    show-sql: false
+  h2:
+    console:
+      enabled: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8180/realms/eagle-bank
+          jwk-set-uri: http://localhost:8180/realms/eagle-bank/protocol/openid-connect/certs
+
+keycloak:
+  auth-server-url: http://localhost:8180
+  realm: eagle-bank
+  resource: eagle-bank-api
+  public-client: true
+  principal-attribute: preferred_username
+
+logging:
+  level:
+    com.eaglebank: INFO
+    org.springframework.security: INFO
+    org.keycloak: INFO 

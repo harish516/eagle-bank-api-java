@@ -1,0 +1,7 @@
+# Base Image
+FROM postgres:15-alpine
+
+# Copy the initialization SQL script into the Docker entrypoint directory
+# This script will be executed when the container is started
+COPY ./src/main/resources/db/01-eagle-bank-initdb.sql /docker-entrypoint-initdb.d/01-eagle-bank-initdb.sql
+COPY ./src/main/resources/db/02-keycloak-initdb.sql /docker-entrypoint-initdb.d/02-keycloak-initdb.sql

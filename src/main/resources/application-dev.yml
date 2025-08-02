@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://eagle-bank-postgres:5432/eagle_bank
+    driver-class-name: org.postgresql.Driver
+    username: eagle_user
+    password: eagle_password
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+  h2:
+    console:
+      enabled: false
+
+keycloak:
+  auth-server-url: http://localhost:8180
+  realm: eagle-bank
+  resource: eagle-bank-api
+  public-client: true
+  principal-attribute: preferred_username
+
+logging:
+  level:
+    com.eaglebank: DEBUG
+    org.springframework.security: DEBUG
+    org.keycloak: DEBUG 

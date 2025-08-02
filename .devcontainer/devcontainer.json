@@ -1,0 +1,24 @@
+{
+  "name": "Eagle Bank API - Spring Boot",
+  "image": "mcr.microsoft.com/devcontainers/java:21",
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
+  "runArgs": ["--privileged"],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vscjava.vscode-maven",
+        "vscjava.vscode-java-test",
+        "vscjava.vscode-java-debug",
+        "redhat.vscode-xml",
+        "ms-vscode.vscode-json",
+        "eamodio.gitlens",
+        "ms-vscode.vscode-docker",
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  },
+  "postCreateCommand": ".devcontainer/setup-docker.sh"
+}
