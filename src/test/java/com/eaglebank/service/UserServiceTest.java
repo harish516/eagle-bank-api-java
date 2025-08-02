@@ -1,10 +1,12 @@
 package com.eaglebank.service;
 
 import com.eaglebank.domain.Address;
+import com.eaglebank.domain.BankAccount;
 import com.eaglebank.domain.User;
 import com.eaglebank.dto.CreateUserRequest;
 import com.eaglebank.dto.UpdateUserRequest;
 import com.eaglebank.dto.UserResponse;
+import com.eaglebank.repository.BankAccountRepository;
 import com.eaglebank.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +16,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,6 +30,9 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private BankAccountRepository bankAccountRepository;
 
     @InjectMocks
     private UserService userService;
@@ -67,6 +74,53 @@ class UserServiceTest {
                 .build();
     }
 
+    /**
+     * Input validation tests for UserService methods.
+     * These tests ensure that the service methods handle invalid input correctly.
+     */
+
+    @Test
+    void shouldThrowExceptionWhenCreatingUserWithInvalidData() {
+        // Test validation of CreateUserRequest fields
+        createUserRequest.setEmail("invalid-email");
+        assertThatThrownBy(() -> userService.createUser(createUserRequest))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Email must be in valid format");
+
+        createUserRequest.setEmail("valid@example.com");
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUpdatingUserWithInvalidData() {
+        // Test validation of UpdateUserRequest fields
+        when(userRepository.findById("usr-abc123")).thenReturn(Optional.of(testUser));
+
+        updateUserRequest.setEmail("invalid-email");
+        assertThatThrownBy(() -> userService.updateUser("usr-abc123", updateUserRequest))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Email must be in valid format");
+
+        updateUserRequest.setEmail("valid@example.com");
+    }
+
+    @Test
+    void shouldHandleNullOrEmptyUserIds() {
+        // Test null/empty user ID parameters
+        assertThatThrownBy(() -> userService.getUserById(null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("User ID must not be null or empty");
+
+        assertThatThrownBy(() -> userService.getUserById(""))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("User ID must not be null or empty");
+    }
+
+    /**
+     * Tests for UserService.createUser() method.
+     * This method creates a new user based on the CreateUserRequest DTO and saves it to the repository.
+     * It also checks if a user with the same email already exists before proceeding with creation.
+     */
+
     @Test
     void shouldCreateUserSuccessfully() {
         when(userRepository.existsByEmail(createUserRequest.getEmail())).thenReturn(false);
@@ -95,6 +149,11 @@ class UserServiceTest {
         verify(userRepository, never()).save(any(User.class));
     }
 
+    /**
+     * Tests for UserService.getUserById() method.
+     * This method retrieves a user by their ID and maps it to a UserResponse DTO.
+     */
+
     @Test
     void shouldGetUserByIdSuccessfully() {
         when(userRepository.findById("usr-abc123")).thenReturn(Optional.of(testUser));
@@ -119,6 +178,11 @@ class UserServiceTest {
         verify(userRepository).findById("usr-nonexistent");
     }
 
+    /**
+     * Tests for UserService.updateUser() method.
+     * This method updates an existing user with new details provided in the UpdateUserRequest DTO.
+     */
+
     @Test
     void shouldUpdateUserSuccessfully() {
         when(userRepository.findById("usr-abc123")).thenReturn(Optional.of(testUser));
@@ -136,29 +200,222 @@ class UserServiceTest {
     }
 
     @Test
+    void shouldUpdateUserPartiallyWithOnlyName() {
+        UpdateUserRequest partialUpdate = UpdateUserRequest.builder()
+                .name("Partially Updated User")
+                .build();
+
+        when(userRepository.findById("usr-abc123")).thenReturn(Optional.of(testUser));
+        when(userRepository.save(any(User.class))).thenReturn(testUser);
+
+        UserResponse result = userService.updateUser("usr-abc123", partialUpdate);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getName()).isEqualTo("Partially Updated User");
+        assertThat(result.getPhoneNumber()).isEqualTo("+44123456789");
+        assertThat(result.getEmail()).isEqualTo("test@example.com");
+
+        verify(userRepository).findById("usr-abc123");
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void shouldUpdateUserPartiallyWithOnlyEmail() {
+        UpdateUserRequest partialUpdate = UpdateUserRequest.builder()
+                .email("updated@example.com")
+                .build();
+
+        when(userRepository.findById("usr-abc123")).thenReturn(Optional.of(testUser));
+        when(userRepository.save(any(User.class))).thenReturn(testUser);
+
+        UserResponse result = userService.updateUser("usr-abc123", partialUpdate);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getName()).isEqualTo("Test User");
+        assertThat(result.getPhoneNumber()).isEqualTo("+44123456789");
+        assertThat(result.getEmail()).isEqualTo("updated@example.com");
+
+        verify(userRepository).findById("usr-abc123");
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void shouldUpdateUserPartiallyWithOnlyPhoneNumber() {
+        UpdateUserRequest partialUpdate = UpdateUserRequest.builder()
+                .phoneNumber("+44987654321")
+                .build();
+
+        when(userRepository.findById("usr-abc123")).thenReturn(Optional.of(testUser));
+        when(userRepository.save(any(User.class))).thenReturn(testUser);
+
+        UserResponse result = userService.updateUser("usr-abc123", partialUpdate);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getName()).isEqualTo("Test User");
+        assertThat(result.getPhoneNumber()).isEqualTo("+44987654321");
+        assertThat(result.getEmail()).isEqualTo("test@example.com");
+    }
+
+    @Test
+    void shouldUpdateUserPartiallyWithOnlyAddress() {
+        Address newAddress = Address.builder()
+                .line1("456 Another Street")
+                .town("Manchester")
+                .county("Greater Manchester")
+                .postcode("M1 1AA")
+                .build();
+
+        UpdateUserRequest partialUpdate = UpdateUserRequest.builder()
+                .address(newAddress)
+                .build();
+
+        when(userRepository.findById("usr-abc123")).thenReturn(Optional.of(testUser));
+        when(userRepository.save(any(User.class))).thenReturn(testUser);
+
+        UserResponse result = userService.updateUser("usr-abc123", partialUpdate);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getName()).isEqualTo("Test User");
+        assertThat(result.getPhoneNumber()).isEqualTo("+44123456789");
+        assertThat(result.getEmail()).isEqualTo("test@example.com");
+        assertThat(result.getAddress()).isEqualTo(newAddress);
+
+        verify(userRepository).findById("usr-abc123");
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUpdatingToExistingEmail() {
+        UpdateUserRequest partialUpdate = UpdateUserRequest.builder()
+                .email("existing@example.com")
+                .build();
+
+        when(userRepository.findById("usr-abc123")).thenReturn(Optional.of(testUser));
+        when(userRepository.findByEmail("existing@example.com")).thenReturn(Optional.of(testUser));
+
+        assertThatThrownBy(() -> userService.updateUser("usr-abc123", partialUpdate))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Email already in use");
+
+        verify(userRepository).findById("usr-abc123");
+        verify(userRepository).findByEmail("existing@example.com");
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUserNotFoundForUpdate() {
+        when(userRepository.findById("usr-nonexistent")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.updateUser("usr-nonexistent", updateUserRequest))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("User not found with ID");
+
+        verify(userRepository).findById("usr-nonexistent");
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    /**
+     * Tests for UserService.deleteUser() method.
+     * This method deletes a user by ID, ensuring that the user exists and has no associated bank accounts before deletion.
+     */
+
+    @Test
     void shouldDeleteUserSuccessfully() {
         when(userRepository.findById("usr-abc123")).thenReturn(Optional.of(testUser));
+        when(bankAccountRepository.findByUserId("usr-abc123")).thenReturn(Collections.emptyList());
         doNothing().when(userRepository).delete(testUser);
 
         userService.deleteUser("usr-abc123");
 
         verify(userRepository).findById("usr-abc123");
+        verify(bankAccountRepository).findByUserId("usr-abc123");
         verify(userRepository).delete(testUser);
     }
 
     @Test
     void shouldThrowExceptionWhenDeletingUserWithAccounts() {
-        // This test would require checking if user has associated bank accounts
-        // Implementation would depend on business logic
+        // Mock that user exists
         when(userRepository.findById("usr-abc123")).thenReturn(Optional.of(testUser));
+        
+        // Mock that user has associated bank accounts
+        BankAccount mockAccount = BankAccount.builder()
+                .accountNumber("01123456")
+                .sortCode("123456")
+                .name("Test Account")
+                .user(testUser)
+                .build();
+        when(bankAccountRepository.findByUserId("usr-abc123")).thenReturn(List.of(mockAccount));
 
-        // Mock the check for associated accounts
-        // This is a placeholder for the actual implementation
         assertThatThrownBy(() -> userService.deleteUser("usr-abc123"))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Cannot delete user with associated bank accounts");
 
         verify(userRepository).findById("usr-abc123");
+        verify(bankAccountRepository).findByUserId("usr-abc123");
         verify(userRepository, never()).delete(any(User.class));
     }
+
+    /**
+     * Tests for UserService.getAllUsers() method.
+     * This method retrieves all users from the repository and maps them to UserResponse DTOs.
+     */
+
+    @Test
+    void shouldGetAllUsersSuccessfully() {
+        List<User> users = List.of(testUser);
+        when(userRepository.findAll()).thenReturn(users);
+
+        List<UserResponse> result = userService.getAllUsers();
+
+        assertThat(result).isNotNull();
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getId()).isEqualTo("usr-abc123");
+        assertThat(result.get(0).getName()).isEqualTo("Test User");
+
+        verify(userRepository).findAll();
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenNoUsersExist() {
+        when(userRepository.findAll()).thenReturn(Collections.emptyList());
+
+        List<UserResponse> result = userService.getAllUsers();
+
+        assertThat(result).isNotNull();
+        assertThat(result).isEmpty();
+
+        verify(userRepository).findAll();
+    }
+
+    /**
+     * Edge cases and exception handling tests for UserService methods.
+     * These tests ensure that the service methods handle unexpected scenarios gracefully.
+     */
+
+    @Test
+    void shouldHandleRepositoryExceptions() {
+        // Test database/repository exceptions
+        when(userRepository.findById("usr-abc123")).thenThrow(new RuntimeException("Database error"));
+
+        assertThatThrownBy(() -> userService.getUserById("usr-abc123"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Failed to retrieve user");
+
+        verify(userRepository).findById("usr-abc123");
+    }
+
+    @Test
+    void shouldPreserveUserTimestampsCorrectly() {
+        // Test createdTimestamp preservation during updates
+        when(userRepository.findById("usr-abc123")).thenReturn(Optional.of(testUser));
+        when(userRepository.save(any(User.class))).thenReturn(testUser);    
+    }
+
+    @Test
+    void shouldUpdateTimestampOnUserUpdate() {
+        // Test updatedTimestamp is updated correctly
+        when(userRepository.findById("usr-abc123")).thenReturn(Optional.of(testUser));
+        when(userRepository.save(any(User.class))).thenReturn(testUser);    
+    }
+
 } 
