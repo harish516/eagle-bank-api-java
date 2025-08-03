@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("CreateTransactionRequest Tests")
 class CreateTransactionRequestTest {
@@ -648,6 +649,168 @@ class CreateTransactionRequestTest {
             assertThat(hasAmountViolation).isTrue();
             assertThat(hasCurrencyViolation).isTrue();
             assertThat(hasTypeViolation).isTrue();
+        }
+    }
+
+    @Nested
+    @DisplayName("Validate Method Tests")
+    class ValidateMethodTests {
+
+        @Test
+        @DisplayName("Should pass validation for valid request")
+        void shouldPassValidationForValidRequest() {
+            // Given
+            CreateTransactionRequest request = CreateTransactionRequest.builder()
+                    .amount(new BigDecimal("100.00"))
+                    .currency(Currency.GBP)
+                    .type(TransactionType.DEPOSIT)
+                    .reference("Valid transaction")
+                    .build();
+
+            // When & Then - Should not throw any exception
+            try {
+                request.validate();
+                // If we reach here, validation passed
+                assertThat(true).isTrue();
+            } catch (Exception e) {
+                assertThat(e).isNull(); // This will fail if any exception is thrown
+            }
+        }
+
+        @Test
+        @DisplayName("Should throw exception when amount is null")
+        void shouldThrowExceptionWhenAmountIsNull() {
+            // Given
+            CreateTransactionRequest request = CreateTransactionRequest.builder()
+                    .amount(null)
+                    .currency(Currency.GBP)
+                    .type(TransactionType.DEPOSIT)
+                    .build();
+
+            // When & Then
+            assertThatThrownBy(() -> request.validate())
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Transaction amount is required");
+        }
+
+        @Test
+        @DisplayName("Should throw exception when currency is null")
+        void shouldThrowExceptionWhenCurrencyIsNull() {
+            // Given
+            CreateTransactionRequest request = CreateTransactionRequest.builder()
+                    .amount(new BigDecimal("100.00"))
+                    .currency(null)
+                    .type(TransactionType.DEPOSIT)
+                    .build();
+
+            // When & Then
+            assertThatThrownBy(() -> request.validate())
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Transaction currency is required");
+        }
+
+        @Test
+        @DisplayName("Should throw exception when type is null")
+        void shouldThrowExceptionWhenTypeIsNull() {
+            // Given
+            CreateTransactionRequest request = CreateTransactionRequest.builder()
+                    .amount(new BigDecimal("100.00"))
+                    .currency(Currency.GBP)
+                    .type(null)
+                    .build();
+
+            // When & Then
+            assertThatThrownBy(() -> request.validate())
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Transaction type is required");
+        }
+
+        @Test
+        @DisplayName("Should throw exception when amount is zero")
+        void shouldThrowExceptionWhenAmountIsZero() {
+            // Given
+            CreateTransactionRequest request = CreateTransactionRequest.builder()
+                    .amount(BigDecimal.ZERO)
+                    .currency(Currency.GBP)
+                    .type(TransactionType.DEPOSIT)
+                    .build();
+
+            // When & Then
+            assertThatThrownBy(() -> request.validate())
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Transaction amount must be greater than zero");
+        }
+
+        @Test
+        @DisplayName("Should throw exception when amount is negative")
+        void shouldThrowExceptionWhenAmountIsNegative() {
+            // Given
+            CreateTransactionRequest request = CreateTransactionRequest.builder()
+                    .amount(new BigDecimal("-50.00"))
+                    .currency(Currency.GBP)
+                    .type(TransactionType.DEPOSIT)
+                    .build();
+
+            // When & Then
+            assertThatThrownBy(() -> request.validate())
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Transaction amount must be greater than zero");
+        }
+
+        @Test
+        @DisplayName("Should throw exception when amount exceeds maximum")
+        void shouldThrowExceptionWhenAmountExceedsMaximum() {
+            // Given
+            CreateTransactionRequest request = CreateTransactionRequest.builder()
+                    .amount(new BigDecimal("15000.00"))
+                    .currency(Currency.GBP)
+                    .type(TransactionType.DEPOSIT)
+                    .build();
+
+            // When & Then
+            assertThatThrownBy(() -> request.validate())
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Transaction amount must not exceed 10000.00");
+        }
+
+        @Test
+        @DisplayName("Should pass validation with maximum allowed amount")
+        void shouldPassValidationWithMaximumAllowedAmount() {
+            // Given
+            CreateTransactionRequest request = CreateTransactionRequest.builder()
+                    .amount(new BigDecimal("10000.00"))
+                    .currency(Currency.GBP)
+                    .type(TransactionType.WITHDRAWAL)
+                    .build();
+
+            // When & Then - Should not throw any exception
+            try {
+                request.validate();
+                // If we reach here, validation passed
+                assertThat(true).isTrue();
+            } catch (Exception e) {
+                assertThat(e).isNull(); // This will fail if any exception is thrown
+            }
+        }
+
+        @Test
+        @DisplayName("Should pass validation with minimum allowed amount")
+        void shouldPassValidationWithMinimumAllowedAmount() {
+            // Given
+            CreateTransactionRequest request = CreateTransactionRequest.builder()
+                    .amount(new BigDecimal("0.01"))
+                    .currency(Currency.GBP)
+                    .type(TransactionType.DEPOSIT)
+                    .build();
+
+            // When & Then - Should not throw any exception
+            try {
+                request.validate();
+                // If we reach here, validation passed
+                assertThat(true).isTrue();
+            } catch (Exception e) {
+                assertThat(e).isNull(); // This will fail if any exception is thrown
+            }
         }
     }
 }

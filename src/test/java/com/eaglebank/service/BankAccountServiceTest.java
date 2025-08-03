@@ -777,4 +777,482 @@ class BankAccountServiceTest {
         verify(transactionRepository).save(any(Transaction.class));
         verify(bankAccountRepository).save(any(BankAccount.class));
     }
+
+    /**
+     * Comprehensive tests for BankAccountService.createTransaction() method.
+     * These tests ensure that the transaction creation handles various edge cases and validation scenarios.
+     */
+
+    @Test
+    void shouldThrowExceptionWhenWithdrawingInsufficientBalance() {
+        // Given - Account with balance of 50.00, attempting to withdraw 100.00
+        CreateTransactionRequest withdrawalRequest = CreateTransactionRequest.builder()
+                .amount(BigDecimal.valueOf(100.00))
+                .currency(Currency.GBP)
+                .type(TransactionType.WITHDRAWAL)
+                .reference("Insufficient balance withdrawal")
+                .build();
+
+        BankAccount accountWithLowBalance = BankAccount.builder()
+                .accountNumber("01123456")
+                .sortCode("10-10-10")
+                .name("Test Account")
+                .accountType(AccountType.PERSONAL)
+                .balance(BigDecimal.valueOf(50.00))
+                .currency(Currency.GBP.name())
+                .user(testUser)
+                .createdTimestamp(LocalDateTime.now())
+                .updatedTimestamp(LocalDateTime.now())
+                .build();
+
+        when(bankAccountRepository.findByAccountNumber("01123456")).thenReturn(Optional.of(accountWithLowBalance));
+
+        // When & Then - Should throw exception for insufficient balance
+        assertThatThrownBy(() -> bankAccountService.createTransaction("01123456", withdrawalRequest))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Insufficient balance for withdrawal");
+
+        verify(bankAccountRepository).findByAccountNumber("01123456");
+        verify(transactionRepository, never()).save(any(Transaction.class));
+        verify(bankAccountRepository, never()).save(any(BankAccount.class));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCreateTransactionRequestHasNullAmount() {
+        // Given - Request with null amount
+        CreateTransactionRequest invalidRequest = CreateTransactionRequest.builder()
+                .amount(null)
+                .currency(Currency.GBP)
+                .type(TransactionType.DEPOSIT)
+                .reference("Invalid amount")
+                .build();
+
+        // When & Then - Should throw exception for null amount
+        assertThatThrownBy(() -> bankAccountService.createTransaction("01123456", invalidRequest))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Transaction amount is required");
+
+        // Validation happens before any repository calls
+        verify(bankAccountRepository, never()).findByAccountNumber(anyString());
+        verify(transactionRepository, never()).save(any(Transaction.class));
+        verify(bankAccountRepository, never()).save(any(BankAccount.class));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCreateTransactionRequestHasNullCurrency() {
+        // Given - Request with null currency
+        CreateTransactionRequest invalidRequest = CreateTransactionRequest.builder()
+                .amount(BigDecimal.valueOf(100.00))
+                .currency(null)
+                .type(TransactionType.DEPOSIT)
+                .reference("Invalid currency")
+                .build();
+
+        // When & Then - Should throw exception for null currency
+        assertThatThrownBy(() -> bankAccountService.createTransaction("01123456", invalidRequest))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Transaction currency is required");
+
+        // Validation happens before any repository calls
+        verify(bankAccountRepository, never()).findByAccountNumber(anyString());
+        verify(transactionRepository, never()).save(any(Transaction.class));
+        verify(bankAccountRepository, never()).save(any(BankAccount.class));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCreateTransactionRequestHasNullType() {
+        // Given - Request with null transaction type
+        CreateTransactionRequest invalidRequest = CreateTransactionRequest.builder()
+                .amount(BigDecimal.valueOf(100.00))
+                .currency(Currency.GBP)
+                .type(null)
+                .reference("Invalid type")
+                .build();
+
+        // When & Then - Should throw exception for null type
+        assertThatThrownBy(() -> bankAccountService.createTransaction("01123456", invalidRequest))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Transaction type is required");
+
+        // Validation happens before any repository calls
+        verify(bankAccountRepository, never()).findByAccountNumber(anyString());
+        verify(transactionRepository, never()).save(any(Transaction.class));
+        verify(bankAccountRepository, never()).save(any(BankAccount.class));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenDepositingToNonExistentAccount() {
+        // Given - Valid request but non-existent account
+        CreateTransactionRequest depositRequest = CreateTransactionRequest.builder()
+                .amount(BigDecimal.valueOf(100.00))
+                .currency(Currency.GBP)
+                .type(TransactionType.DEPOSIT)
+                .reference("Deposit to non-existent account")
+                .build();
+
+        when(bankAccountRepository.findByAccountNumber("01999999")).thenReturn(Optional.empty());
+
+        // When & Then - Should throw BankAccountNotFoundException
+        assertThatThrownBy(() -> bankAccountService.createTransaction("01999999", depositRequest))
+                .isInstanceOf(BankAccountNotFoundException.class)
+                .hasMessageContaining("Bank account not found with account number: 01999999");
+
+        verify(bankAccountRepository).findByAccountNumber("01999999");
+        verify(transactionRepository, never()).save(any(Transaction.class));
+        verify(bankAccountRepository, never()).save(any(BankAccount.class));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenAccountNumberIsNull() {
+        // Given - Valid request but null account number
+        CreateTransactionRequest depositRequest = CreateTransactionRequest.builder()
+                .amount(BigDecimal.valueOf(100.00))
+                .currency(Currency.GBP)
+                .type(TransactionType.DEPOSIT)
+                .reference("Valid deposit")
+                .build();
+
+        // When & Then - Should throw IllegalArgumentException
+        assertThatThrownBy(() -> bankAccountService.createTransaction(null, depositRequest))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Account number must not be null or empty");
+
+        verify(bankAccountRepository, never()).findByAccountNumber(anyString());
+        verify(transactionRepository, never()).save(any(Transaction.class));
+        verify(bankAccountRepository, never()).save(any(BankAccount.class));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenAccountNumberIsEmpty() {
+        // Given - Valid request but empty account number
+        CreateTransactionRequest depositRequest = CreateTransactionRequest.builder()
+                .amount(BigDecimal.valueOf(100.00))
+                .currency(Currency.GBP)
+                .type(TransactionType.DEPOSIT)
+                .reference("Valid deposit")
+                .build();
+
+        // When & Then - Should throw IllegalArgumentException
+        assertThatThrownBy(() -> bankAccountService.createTransaction("", depositRequest))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Account number must not be null or empty");
+
+        verify(bankAccountRepository, never()).findByAccountNumber(anyString());
+        verify(transactionRepository, never()).save(any(Transaction.class));
+        verify(bankAccountRepository, never()).save(any(BankAccount.class));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCreateTransactionRequestIsNull() {
+        // When & Then - Should throw IllegalArgumentException
+        assertThatThrownBy(() -> bankAccountService.createTransaction("01123456", null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Create transaction request must not be null");
+
+        verify(bankAccountRepository, never()).findByAccountNumber(anyString());
+        verify(transactionRepository, never()).save(any(Transaction.class));
+        verify(bankAccountRepository, never()).save(any(BankAccount.class));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenNegativeAmountProvided() {
+        // Given - Request with negative amount
+        CreateTransactionRequest invalidRequest = CreateTransactionRequest.builder()
+                .amount(BigDecimal.valueOf(-50.00))
+                .currency(Currency.GBP)
+                .type(TransactionType.DEPOSIT)
+                .reference("Negative amount")
+                .build();
+
+        // When & Then - Should throw exception for negative amount
+        assertThatThrownBy(() -> bankAccountService.createTransaction("01123456", invalidRequest))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Transaction amount must be greater than zero");
+
+        // Validation happens before any repository calls
+        verify(bankAccountRepository, never()).findByAccountNumber(anyString());
+        verify(transactionRepository, never()).save(any(Transaction.class));
+        verify(bankAccountRepository, never()).save(any(BankAccount.class));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenZeroAmountProvided() {
+        // Given - Request with zero amount
+        CreateTransactionRequest invalidRequest = CreateTransactionRequest.builder()
+                .amount(BigDecimal.ZERO)
+                .currency(Currency.GBP)
+                .type(TransactionType.DEPOSIT)
+                .reference("Zero amount")
+                .build();
+
+        // When & Then - Should throw exception for zero amount
+        assertThatThrownBy(() -> bankAccountService.createTransaction("01123456", invalidRequest))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Transaction amount must be greater than zero");
+
+        // Validation happens before any repository calls
+        verify(bankAccountRepository, never()).findByAccountNumber(anyString());
+        verify(transactionRepository, never()).save(any(Transaction.class));
+        verify(bankAccountRepository, never()).save(any(BankAccount.class));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenExceedingMaximumAmount() {
+        // Given - Request with amount exceeding maximum limit (10000.00)
+        CreateTransactionRequest invalidRequest = CreateTransactionRequest.builder()
+                .amount(BigDecimal.valueOf(15000.00))
+                .currency(Currency.GBP)
+                .type(TransactionType.DEPOSIT)
+                .reference("Excessive amount")
+                .build();
+
+        // When & Then - Should throw exception for excessive amount
+        assertThatThrownBy(() -> bankAccountService.createTransaction("01123456", invalidRequest))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Transaction amount must not exceed 10000.00");
+
+        // Validation happens before any repository calls
+        verify(bankAccountRepository, never()).findByAccountNumber(anyString());
+        verify(transactionRepository, never()).save(any(Transaction.class));
+        verify(bankAccountRepository, never()).save(any(BankAccount.class));
+    }
+
+    @Test
+    void shouldHandleRepositoryExceptionInCreateTransaction() {
+        // Given - Valid request but repository throws exception
+        CreateTransactionRequest depositRequest = CreateTransactionRequest.builder()
+                .amount(BigDecimal.valueOf(100.00))
+                .currency(Currency.GBP)
+                .type(TransactionType.DEPOSIT)
+                .reference("Repository exception test")
+                .build();
+
+        when(bankAccountRepository.findByAccountNumber("01123456")).thenThrow(new RuntimeException("Database error"));
+
+        // When & Then - Should wrap exception in IllegalStateException
+        assertThatThrownBy(() -> bankAccountService.createTransaction("01123456", depositRequest))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Failed to create transaction");
+
+        verify(bankAccountRepository).findByAccountNumber("01123456");
+        verify(transactionRepository, never()).save(any(Transaction.class));
+        verify(bankAccountRepository, never()).save(any(BankAccount.class));
+    }
+
+    @Test
+    void shouldHandleTransactionRepositorySaveException() {
+        // Given - Valid setup but transaction save fails
+        CreateTransactionRequest depositRequest = CreateTransactionRequest.builder()
+                .amount(BigDecimal.valueOf(100.00))
+                .currency(Currency.GBP)
+                .type(TransactionType.DEPOSIT)
+                .reference("Transaction save exception test")
+                .build();
+
+        when(bankAccountRepository.findByAccountNumber("01123456")).thenReturn(Optional.of(testBankAccount));
+        when(transactionRepository.save(any(Transaction.class))).thenThrow(new RuntimeException("Transaction save failed"));
+
+        // When & Then - Should wrap exception in IllegalStateException
+        assertThatThrownBy(() -> bankAccountService.createTransaction("01123456", depositRequest))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Failed to create transaction");
+
+        verify(bankAccountRepository).findByAccountNumber("01123456");
+        verify(transactionRepository).save(any(Transaction.class));
+        verify(bankAccountRepository, never()).save(any(BankAccount.class));
+    }
+
+    @Test
+    void shouldUpdateAccountTimestampWhenCreatingTransaction() {
+        // Given - Valid deposit request
+        CreateTransactionRequest depositRequest = CreateTransactionRequest.builder()
+                .amount(BigDecimal.valueOf(100.00))
+                .currency(Currency.GBP)
+                .type(TransactionType.DEPOSIT)
+                .reference("Timestamp test")
+                .build();
+
+        LocalDateTime originalTimestamp = LocalDateTime.now().minusHours(1);
+        BankAccount accountWithOldTimestamp = BankAccount.builder()
+                .accountNumber("01123456")
+                .sortCode("10-10-10")
+                .name("Test Account")
+                .accountType(AccountType.PERSONAL)
+                .balance(BigDecimal.valueOf(500.00))
+                .currency(Currency.GBP.name())
+                .user(testUser)
+                .createdTimestamp(originalTimestamp)
+                .updatedTimestamp(originalTimestamp)
+                .build();
+
+        BankAccount updatedAccount = BankAccount.builder()
+                .accountNumber("01123456")
+                .sortCode("10-10-10")
+                .name("Test Account")
+                .accountType(AccountType.PERSONAL)
+                .balance(BigDecimal.valueOf(600.00))
+                .currency(Currency.GBP.name())
+                .user(testUser)
+                .createdTimestamp(originalTimestamp)
+                .updatedTimestamp(LocalDateTime.now())
+                .build();
+
+        Transaction savedTransaction = Transaction.builder()
+                .id("tan-123")
+                .amount(BigDecimal.valueOf(100.00))
+                .currency(Currency.GBP.name())
+                .type(TransactionType.DEPOSIT)
+                .reference("Timestamp test")
+                .bankAccount(updatedAccount)
+                .createdTimestamp(LocalDateTime.now())
+                .build();
+
+        when(bankAccountRepository.findByAccountNumber("01123456")).thenReturn(Optional.of(accountWithOldTimestamp));
+        when(transactionRepository.save(any(Transaction.class))).thenReturn(savedTransaction);
+        when(bankAccountRepository.save(any(BankAccount.class))).thenReturn(updatedAccount);
+
+        // When
+        BankAccountResponse result = bankAccountService.createTransaction("01123456", depositRequest);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getUpdatedTimestamp()).isAfter(originalTimestamp);
+
+        verify(bankAccountRepository).findByAccountNumber("01123456");
+        verify(transactionRepository).save(any(Transaction.class));
+        verify(bankAccountRepository).save(any(BankAccount.class));
+    }
+
+    @Test
+    void shouldSetCorrectUserIdInTransaction() {
+        // Given - Valid deposit request
+        CreateTransactionRequest depositRequest = CreateTransactionRequest.builder()
+                .amount(BigDecimal.valueOf(100.00))
+                .currency(Currency.GBP)
+                .type(TransactionType.DEPOSIT)
+                .reference("User ID test")
+                .build();
+
+        Transaction capturedTransaction = Transaction.builder()
+                .id("tan-123")
+                .amount(BigDecimal.valueOf(100.00))
+                .currency(Currency.GBP.name())
+                .type(TransactionType.DEPOSIT)
+                .reference("User ID test")
+                .bankAccount(testBankAccount)
+                .userId("usr-abc123")
+                .createdTimestamp(LocalDateTime.now())
+                .build();
+
+        when(bankAccountRepository.findByAccountNumber("01123456")).thenReturn(Optional.of(testBankAccount));
+        when(transactionRepository.save(any(Transaction.class))).thenReturn(capturedTransaction);
+        when(bankAccountRepository.save(any(BankAccount.class))).thenReturn(testBankAccount);
+
+        // When
+        bankAccountService.createTransaction("01123456", depositRequest);
+
+        // Then
+        verify(bankAccountRepository).findByAccountNumber("01123456");
+        verify(transactionRepository).save(argThat(transaction -> 
+                transaction.getUserId().equals("usr-abc123") && 
+                transaction.getBankAccount().equals(testBankAccount)));
+        verify(bankAccountRepository).save(any(BankAccount.class));
+    }
+
+    @Test
+    void shouldHandleConcurrentTransactionsCorrectly() {
+        // Given - Two concurrent deposit requests
+        CreateTransactionRequest depositRequest1 = CreateTransactionRequest.builder()
+                .amount(BigDecimal.valueOf(100.00))
+                .currency(Currency.GBP)
+                .type(TransactionType.DEPOSIT)
+                .reference("Concurrent deposit 1")
+                .build();
+
+        CreateTransactionRequest depositRequest2 = CreateTransactionRequest.builder()
+                .amount(BigDecimal.valueOf(200.00))
+                .currency(Currency.GBP)
+                .type(TransactionType.DEPOSIT)
+                .reference("Concurrent deposit 2")
+                .build();
+
+        BankAccount initialAccount = BankAccount.builder()
+                .accountNumber("01123456")
+                .sortCode("10-10-10")
+                .name("Test Account")
+                .accountType(AccountType.PERSONAL)
+                .balance(BigDecimal.valueOf(500.00))
+                .currency(Currency.GBP.name())
+                .user(testUser)
+                .createdTimestamp(LocalDateTime.now())
+                .updatedTimestamp(LocalDateTime.now())
+                .build();
+
+        BankAccount afterFirstTransaction = BankAccount.builder()
+                .accountNumber("01123456")
+                .sortCode("10-10-10")
+                .name("Test Account")
+                .accountType(AccountType.PERSONAL)
+                .balance(BigDecimal.valueOf(600.00)) // 500 + 100
+                .currency(Currency.GBP.name())
+                .user(testUser)
+                .createdTimestamp(LocalDateTime.now())
+                .updatedTimestamp(LocalDateTime.now())
+                .build();
+
+        BankAccount afterSecondTransaction = BankAccount.builder()
+                .accountNumber("01123456")
+                .sortCode("10-10-10")
+                .name("Test Account")
+                .accountType(AccountType.PERSONAL)
+                .balance(BigDecimal.valueOf(800.00)) // 600 + 200
+                .currency(Currency.GBP.name())
+                .user(testUser)
+                .createdTimestamp(LocalDateTime.now())
+                .updatedTimestamp(LocalDateTime.now())
+                .build();
+
+        Transaction savedTransaction1 = Transaction.builder()
+                .id("tan-123")
+                .amount(BigDecimal.valueOf(100.00))
+                .currency(Currency.GBP.name())
+                .type(TransactionType.DEPOSIT)
+                .reference("Concurrent deposit 1")
+                .bankAccount(afterFirstTransaction)
+                .createdTimestamp(LocalDateTime.now())
+                .build();
+
+        Transaction savedTransaction2 = Transaction.builder()
+                .id("tan-456")
+                .amount(BigDecimal.valueOf(200.00))
+                .currency(Currency.GBP.name())
+                .type(TransactionType.DEPOSIT)
+                .reference("Concurrent deposit 2")
+                .bankAccount(afterSecondTransaction)
+                .createdTimestamp(LocalDateTime.now())
+                .build();
+
+        // Setup mocks for sequential execution simulation
+        when(bankAccountRepository.findByAccountNumber("01123456"))
+                .thenReturn(Optional.of(initialAccount))
+                .thenReturn(Optional.of(afterFirstTransaction));
+        when(transactionRepository.save(any(Transaction.class)))
+                .thenReturn(savedTransaction1)
+                .thenReturn(savedTransaction2);
+        when(bankAccountRepository.save(any(BankAccount.class)))
+                .thenReturn(afterFirstTransaction)
+                .thenReturn(afterSecondTransaction);
+
+        // When - Execute both transactions
+        BankAccountResponse result1 = bankAccountService.createTransaction("01123456", depositRequest1);
+        BankAccountResponse result2 = bankAccountService.createTransaction("01123456", depositRequest2);
+
+        // Then - Both should succeed with correct balances
+        assertThat(result1.getBalance()).isEqualByComparingTo(BigDecimal.valueOf(600.00));
+        assertThat(result2.getBalance()).isEqualByComparingTo(BigDecimal.valueOf(800.00));
+
+        verify(bankAccountRepository, times(2)).findByAccountNumber("01123456");
+        verify(transactionRepository, times(2)).save(any(Transaction.class));
+        verify(bankAccountRepository, times(2)).save(any(BankAccount.class));
+    }
 }

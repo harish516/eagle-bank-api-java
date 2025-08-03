@@ -36,4 +36,30 @@ public class CreateTransactionRequest {
     
     @Schema(description = "Transaction reference", example = "Monthly salary deposit")
     private String reference;
+
+    /**
+     * Validates the transaction request fields and business rules.
+     * 
+     * @throws IllegalArgumentException if validation fails
+     */
+    public void validate() {
+        // Validate required fields
+        if (amount == null) {
+            throw new IllegalArgumentException("Transaction amount is required");
+        }
+        if (currency == null) {
+            throw new IllegalArgumentException("Transaction currency is required");
+        }
+        if (type == null) {
+            throw new IllegalArgumentException("Transaction type is required");
+        }
+
+        // Validate amount constraints
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Transaction amount must be greater than zero");
+        }
+        if (amount.compareTo(new BigDecimal("10000.00")) > 0) {
+            throw new IllegalArgumentException("Transaction amount must not exceed 10000.00");
+        }
+    }
 }

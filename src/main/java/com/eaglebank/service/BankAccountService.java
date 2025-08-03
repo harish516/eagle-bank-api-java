@@ -249,6 +249,9 @@ public class BankAccountService {
         }
 
         try {
+            // Validate transaction request
+            request.validate();
+
             // Find the bank account
             BankAccount bankAccount = bankAccountRepository.findByAccountNumber(accountNumber)
                     .orElseThrow(() -> new BankAccountNotFoundException(
@@ -262,6 +265,10 @@ public class BankAccountService {
                 newBalance = currentBalance.add(request.getAmount());
                 log.info("Processing DEPOSIT: {} + {} = {}", currentBalance, request.getAmount(), newBalance);
             } else if (request.getType() == TransactionType.WITHDRAWAL) {
+                // Check for sufficient balance before withdrawal
+                if (currentBalance.compareTo(request.getAmount()) < 0) {
+                    throw new IllegalArgumentException("Insufficient balance for withdrawal. Current balance: " + currentBalance + ", Requested amount: " + request.getAmount());
+                }
                 newBalance = currentBalance.subtract(request.getAmount());
                 log.info("Processing WITHDRAWAL: {} - {} = {}", currentBalance, request.getAmount(), newBalance);
             } else {
@@ -294,6 +301,9 @@ public class BankAccountService {
 
         } catch (BankAccountNotFoundException e) {
             log.error("Bank account not found: {}", accountNumber);
+            throw e;
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid transaction data for account {}: {}", accountNumber, e.getMessage());
             throw e;
         } catch (Exception e) {
             log.error("Failed to create transaction for account {}: {}", accountNumber, e.getMessage());
