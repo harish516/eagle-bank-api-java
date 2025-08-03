@@ -5,14 +5,18 @@ import com.eaglebank.domain.AccountType;
 import com.eaglebank.domain.Address;
 import com.eaglebank.domain.BankAccount;
 import com.eaglebank.domain.Currency;
+import com.eaglebank.domain.Transaction;
+import com.eaglebank.domain.TransactionType;
 import com.eaglebank.domain.User;
 import com.eaglebank.dto.BankAccountResponse;
 import com.eaglebank.dto.CreateBankAccountRequest;
+import com.eaglebank.dto.CreateTransactionRequest;
 import com.eaglebank.dto.ListBankAccountsResponse;
 import com.eaglebank.dto.UpdateBankAccountRequest;
 import com.eaglebank.exception.BankAccountNotFoundException;
 import com.eaglebank.exception.UserNotFoundException;
 import com.eaglebank.repository.BankAccountRepository;
+import com.eaglebank.repository.TransactionRepository;
 import com.eaglebank.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,6 +45,9 @@ class BankAccountServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private TransactionRepository transactionRepository;
 
     @Mock
     private BankAccountProperties bankAccountProperties;
@@ -646,6 +653,128 @@ class BankAccountServiceTest {
 
         verify(bankAccountProperties).getDefaultSortCode();
         verify(userRepository).findById("usr-abc123");
+        verify(bankAccountRepository).save(any(BankAccount.class));
+    }
+
+    @Test
+    void shouldCreateTransactionWithdrawalSuccessfully() {
+        // Test WITHDRAWAL transaction
+        // Given
+        CreateTransactionRequest withdrawalRequest = CreateTransactionRequest.builder()
+                .amount(BigDecimal.valueOf(40.00))
+                .currency(Currency.GBP)
+                .type(TransactionType.WITHDRAWAL)
+                .reference("Test withdrawal")
+                .build();
+
+        BankAccount accountBeforeWithdrawal = BankAccount.builder()
+                .accountNumber("01123456")
+                .sortCode("10-10-10")
+                .name("Test Account")
+                .accountType(AccountType.PERSONAL)
+                .balance(BigDecimal.valueOf(100.00))
+                .currency(Currency.GBP.name())
+                .user(testUser)
+                .createdTimestamp(LocalDateTime.now())
+                .updatedTimestamp(LocalDateTime.now())
+                .build();
+
+        BankAccount accountAfterWithdrawal = BankAccount.builder()
+                .accountNumber("01123456")
+                .sortCode("10-10-10")
+                .name("Test Account")
+                .accountType(AccountType.PERSONAL)
+                .balance(BigDecimal.valueOf(60.00)) // 100 - 40
+                .currency(Currency.GBP.name())
+                .user(testUser)
+                .createdTimestamp(LocalDateTime.now())
+                .updatedTimestamp(LocalDateTime.now())
+                .build();
+
+        Transaction savedWithdrawalTransaction = Transaction.builder()
+                .id("tan-456")
+                .amount(BigDecimal.valueOf(40.00))
+                .currency(Currency.GBP.name())
+                .type(TransactionType.WITHDRAWAL)
+                .reference("Test withdrawal")
+                .bankAccount(accountAfterWithdrawal)
+                .createdTimestamp(LocalDateTime.now())
+                .build();
+
+        when(bankAccountRepository.findByAccountNumber("01123456")).thenReturn(Optional.of(accountBeforeWithdrawal));
+        when(transactionRepository.save(any(Transaction.class))).thenReturn(savedWithdrawalTransaction);
+        when(bankAccountRepository.save(any(BankAccount.class))).thenReturn(accountAfterWithdrawal);
+
+        // When
+        BankAccountResponse withdrawalResult = bankAccountService.createTransaction("01123456", withdrawalRequest);
+
+        // Then
+        assertThat(withdrawalResult).isNotNull();
+        assertThat(withdrawalResult.getBalance()).isEqualByComparingTo(BigDecimal.valueOf(60.00)); // 100 - 40
+
+        verify(bankAccountRepository).findByAccountNumber("01123456");
+        verify(transactionRepository).save(any(Transaction.class));
+        verify(bankAccountRepository).save(any(BankAccount.class));
+    }
+
+    @Test
+    void shouldCreateTransactionDepositSuccessfully() {
+        // Test DEPOSIT transaction
+        // Given
+        CreateTransactionRequest depositRequest = CreateTransactionRequest.builder()
+                .amount(BigDecimal.valueOf(40.00))
+                .currency(Currency.GBP)
+                .type(TransactionType.DEPOSIT)
+                .reference("Test deposit")
+                .build();
+
+        BankAccount accountBeforeTransaction = BankAccount.builder()
+                .accountNumber("01123456")
+                .sortCode("10-10-10")
+                .name("Test Account")
+                .accountType(AccountType.PERSONAL)
+                .balance(BigDecimal.valueOf(100.00))
+                .currency(Currency.GBP.name())
+                .user(testUser)
+                .createdTimestamp(LocalDateTime.now())
+                .updatedTimestamp(LocalDateTime.now())
+                .build();
+
+        BankAccount accountAfterTransaction = BankAccount.builder()
+                .accountNumber("01123456")
+                .sortCode("10-10-10")
+                .name("Test Account")
+                .accountType(AccountType.PERSONAL)
+                .balance(BigDecimal.valueOf(140.00)) // 100 + 40
+                .currency(Currency.GBP.name())
+                .user(testUser)
+                .createdTimestamp(LocalDateTime.now())
+                .updatedTimestamp(LocalDateTime.now())
+                .build();
+
+        Transaction savedTransaction = Transaction.builder()
+                .id("tan-123")
+                .amount(BigDecimal.valueOf(40.00))
+                .currency(Currency.GBP.name())
+                .type(TransactionType.DEPOSIT)
+                .reference("Test deposit")
+                .bankAccount(accountAfterTransaction)
+                .createdTimestamp(LocalDateTime.now())
+                .build();
+
+        when(bankAccountRepository.findByAccountNumber("01123456")).thenReturn(Optional.of(accountBeforeTransaction));
+        when(transactionRepository.save(any(Transaction.class))).thenReturn(savedTransaction);
+        when(bankAccountRepository.save(any(BankAccount.class))).thenReturn(accountAfterTransaction);
+
+        // When
+        BankAccountResponse result = bankAccountService.createTransaction("01123456", depositRequest);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getBalance()).isEqualByComparingTo(BigDecimal.valueOf(140.00)); // 100 + 40
+
+        verify(bankAccountRepository).findByAccountNumber("01123456");
+        verify(transactionRepository).save(any(Transaction.class));
         verify(bankAccountRepository).save(any(BankAccount.class));
     }
 }
