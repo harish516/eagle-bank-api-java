@@ -63,10 +63,10 @@ public class UserService implements UserServiceInterface {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
             return mapToUserResponse(user);
+        } catch (UserNotFoundException e) {
+            throw e; // Re-throw business exceptions as-is
         } catch (Exception e) {
-            if (e instanceof UserNotFoundException) {
-                throw e; // Re-throw not found exceptions
-            }
+            // Convert infrastructure exceptions to business exceptions
             throw new IllegalStateException("Failed to retrieve user with ID: " + userId, e);
         }
     }
@@ -95,6 +95,7 @@ public class UserService implements UserServiceInterface {
         }
 
         user.setUpdatedTimestamp(LocalDateTime.now());
+        
         User updatedUser = userRepository.save(user);
         return mapToUserResponse(updatedUser);
     }
@@ -140,10 +141,10 @@ public class UserService implements UserServiceInterface {
             User user = userRepository.findByEmail(email.trim())
                     .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
             return mapToUserResponse(user);
+        } catch (UserNotFoundException e) {
+            throw e; // Re-throw business exceptions as-is
         } catch (Exception e) {
-            if (e instanceof UserNotFoundException) {
-                throw e; // Re-throw validation and not found exceptions
-            }
+            // Convert infrastructure exceptions to business exceptions
             throw new IllegalStateException("Failed to retrieve user with email: " + email, e);
         }
     }

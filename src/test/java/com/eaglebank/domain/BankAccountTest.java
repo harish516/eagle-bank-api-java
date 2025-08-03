@@ -68,54 +68,6 @@ class BankAccountTest {
     }
 
     @Test
-    void shouldValidateAccountNumberFormat() {
-        BankAccount account = BankAccount.builder()
-                .accountNumber("invalid-account")
-                .sortCode("10-10-10")
-                .name("Personal Bank Account")
-                .accountType(AccountType.PERSONAL)
-                .balance(new BigDecimal("1000.00"))
-                .currency("GBP")
-                .user(user)
-                .build();
-
-        assertThatThrownBy(account::validate)
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Account number must match pattern");
-    }
-
-    @Test
-    void shouldValidateBalanceRange() {
-        BankAccount accountWithNegativeBalance = BankAccount.builder()
-                .accountNumber("01234567")
-                .sortCode("10-10-10")
-                .name("Personal Bank Account")
-                .accountType(AccountType.PERSONAL)
-                .balance(new BigDecimal("-100.00"))
-                .currency("GBP")
-                .user(user)
-                .build();
-
-        assertThatThrownBy(accountWithNegativeBalance::validate)
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Balance must be between 0 and 10000");
-
-        BankAccount accountWithExcessiveBalance = BankAccount.builder()
-                .accountNumber("01234567")
-                .sortCode("10-10-10")
-                .name("Personal Bank Account")
-                .accountType(AccountType.PERSONAL)
-                .balance(new BigDecimal("15000.00"))
-                .currency("GBP")
-                .user(user)
-                .build();
-
-        assertThatThrownBy(accountWithExcessiveBalance::validate)
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Balance must be between 0 and 10000");
-    }
-
-    @Test
     void shouldDepositMoney() {
         BigDecimal initialBalance = bankAccount.getBalance();
         BigDecimal depositAmount = new BigDecimal("500.00");
@@ -371,22 +323,6 @@ class BankAccountTest {
             "01 23456",  // Contains space
             ""           // Empty
         })
-        @DisplayName("Should fail validation for invalid account number formats")
-        void shouldFailValidationForInvalidAccountNumberFormats(String invalidAccountNumber) {
-            BankAccount account = BankAccount.builder()
-                    .accountNumber(invalidAccountNumber)
-                    .sortCode("10-10-10")
-                    .name("Test Account")
-                    .accountType(AccountType.PERSONAL)
-                    .balance(new BigDecimal("1000.00"))
-                    .currency("GBP")
-                    .user(user)
-                    .build();
-
-            assertThatThrownBy(account::validate)
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Account number must match pattern");
-        }
 
         @Test
         @DisplayName("Should handle null account number gracefully")

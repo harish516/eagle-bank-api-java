@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Tests for User domain entity focusing on non-validation functionality.
  * Validation tests are covered in UserBeanValidationTest.
  */
-class UserTest {
+class UserTestNew {
 
     private User user;
     private Address address;

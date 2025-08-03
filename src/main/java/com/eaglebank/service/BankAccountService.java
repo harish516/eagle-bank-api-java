@@ -78,10 +78,10 @@ public class BankAccountService implements BankAccountServiceInterface {
             BankAccount savedBankAccount = bankAccountRepository.save(bankAccount);
             return mapToBankAccountResponse(savedBankAccount);
             
+        } catch (UserNotFoundException e) {
+            throw e; // Re-throw business exceptions as-is
         } catch (Exception e) {
-            if (e instanceof IllegalArgumentException || e instanceof UserNotFoundException) {
-                throw e; // Re-throw validation and not found exceptions
-            }
+            // Convert infrastructure exceptions to business exceptions
             throw new IllegalStateException("Failed to create bank account for user ID: " + userId, e);
         }
     }
@@ -98,10 +98,10 @@ public class BankAccountService implements BankAccountServiceInterface {
             BankAccount bankAccount = bankAccountRepository.findByAccountNumber(accountNumber)
                     .orElseThrow(() -> new BankAccountNotFoundException("Bank account not found with account number: " + accountNumber));
             return mapToBankAccountResponse(bankAccount);
+        } catch (BankAccountNotFoundException e) {
+            throw e; // Re-throw business exceptions as-is
         } catch (Exception e) {
-            if (e instanceof BankAccountNotFoundException) {
-                throw e; // Re-throw validation and not found exceptions
-            }
+            // Convert infrastructure exceptions to business exceptions
             throw new IllegalStateException("Failed to retrieve bank account with account number: " + accountNumber, e);
         }
     }
@@ -128,10 +128,10 @@ public class BankAccountService implements BankAccountServiceInterface {
             return ListBankAccountsResponse.builder()
                     .accounts(bankAccountResponses)
                     .build();
+        } catch (UserNotFoundException e) {
+            throw e; // Re-throw business exceptions as-is
         } catch (Exception e) {
-            if (e instanceof IllegalArgumentException || e instanceof UserNotFoundException) {
-                throw e; // Re-throw validation and not found exceptions
-            }
+            // Convert infrastructure exceptions to business exceptions
             throw new IllegalStateException("Failed to retrieve bank accounts for user ID: " + userId, e);
         }
     }
@@ -180,10 +180,10 @@ public class BankAccountService implements BankAccountServiceInterface {
             BankAccount updatedBankAccount = bankAccountRepository.save(bankAccount);
             return mapToBankAccountResponse(updatedBankAccount);
             
+        } catch (BankAccountNotFoundException e) {
+            throw e; // Re-throw business exceptions as-is
         } catch (Exception e) {
-            if (e instanceof BankAccountNotFoundException) {
-                throw e; // Re-throw not found exceptions
-            }
+            // Convert infrastructure exceptions to business exceptions
             throw new IllegalStateException("Failed to update bank account with account number: " + accountNumber, e);
         }
     }

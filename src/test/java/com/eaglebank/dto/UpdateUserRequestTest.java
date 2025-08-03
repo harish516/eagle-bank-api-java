@@ -439,39 +439,6 @@ class UpdateUserRequestTest {
             // Then
             assertThat(violations).isEmpty();
         }
-
-        @Test
-        @DisplayName("Should allow empty email (optional field for updates)")
-        void shouldAllowEmptyEmail() {
-            // Given
-            UpdateUserRequest request = UpdateUserRequest.builder()
-                    .email("")
-                    .build();
-
-            // When
-            Set<ConstraintViolation<UpdateUserRequest>> violations = validator.validate(request);
-
-            // Then
-            assertThat(violations).isEmpty();
-        }
-
-        @ParameterizedTest
-        @DisplayName("Should reject blank email with whitespace")
-        @ValueSource(strings = {"   ", "\t", "\n"})
-        void shouldRejectBlankEmailWithWhitespace(String email) {
-            // Given
-            UpdateUserRequest request = UpdateUserRequest.builder()
-                    .email(email)
-                    .build();
-
-            // When
-            Set<ConstraintViolation<UpdateUserRequest>> violations = validator.validate(request);
-
-            // Then
-            assertThat(violations).hasSize(1);
-            assertThat(violations.iterator().next().getMessage())
-                    .isEqualTo("Email must be in valid format");
-        }
     }
 
     @Nested

@@ -79,67 +79,6 @@ class TransactionTest {
     }
 
     @Test
-    void shouldValidateTransactionIdFormat() {
-        Transaction invalidTransaction = Transaction.builder()
-                .id("invalid-id")
-                .amount(new BigDecimal("100.00"))
-                .currency("GBP")
-                .type(TransactionType.DEPOSIT)
-                .bankAccount(bankAccount)
-                .userId(user.getId())
-                .build();
-
-        assertThatThrownBy(invalidTransaction::validate)
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Transaction ID must match pattern");
-    }
-
-    @Test
-    void shouldValidateAmountRange() {
-        Transaction negativeAmountTransaction = Transaction.builder()
-                .id("tan-123abc")
-                .amount(new BigDecimal("-100.00"))
-                .currency("GBP")
-                .type(TransactionType.DEPOSIT)
-                .bankAccount(bankAccount)
-                .userId(user.getId())
-                .build();
-
-        assertThatThrownBy(negativeAmountTransaction::validate)
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Amount must be between 0 and 10000");
-
-        Transaction excessiveAmountTransaction = Transaction.builder()
-                .id("tan-123abc")
-                .amount(new BigDecimal("15000.00"))
-                .currency("GBP")
-                .type(TransactionType.DEPOSIT)
-                .bankAccount(bankAccount)
-                .userId(user.getId())
-                .build();
-
-        assertThatThrownBy(excessiveAmountTransaction::validate)
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Amount must be between 0 and 10000");
-    }
-
-    @Test
-    void shouldValidateCurrency() {
-        Transaction usdTransaction = Transaction.builder()
-                .id("tan-123abc")
-                .amount(new BigDecimal("100.00"))
-                .currency("USD")
-                .type(TransactionType.DEPOSIT)
-                .bankAccount(bankAccount)
-                .userId(user.getId())
-                .build();
-
-        assertThatThrownBy(usdTransaction::validate)
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Currency must be GBP");
-    }
-
-    @Test
     void shouldProcessDepositTransaction() {
         BigDecimal initialBalance = bankAccount.getBalance();
         BigDecimal depositAmount = new BigDecimal("200.00");
@@ -312,34 +251,6 @@ class TransactionTest {
     @Nested
     @DisplayName("Transaction ID Validation Tests")
     class TransactionIdValidationTests {
-
-        @ParameterizedTest
-        @ValueSource(strings = {
-            "invalid-id",        // Wrong prefix
-            "tan-",              // Empty suffix
-            "TAN-123abc",        // Wrong case prefix
-            "tan 123abc",        // Space in ID
-            "tan-123-abc",       // Extra hyphen
-            "tan-123@abc",       // Special character
-            "",                  // Empty
-            "tan-"               // Only prefix
-        })
-        @DisplayName("Should fail validation for invalid transaction ID formats")
-        void shouldFailValidationForInvalidTransactionIdFormats(String invalidId) {
-            Transaction invalidTransaction = Transaction.builder()
-                    .id(invalidId)
-                    .amount(new BigDecimal("100.00"))
-                    .currency("GBP")
-                    .type(TransactionType.DEPOSIT)
-                    .bankAccount(bankAccount)
-                    .userId(user.getId())
-                    .build();
-
-            assertThatThrownBy(invalidTransaction::validate)
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Transaction ID must match pattern");
-        }
-
         @ParameterizedTest
         @ValueSource(strings = {
             "tan-123abc",

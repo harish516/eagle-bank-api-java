@@ -25,12 +25,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/accounts")
 @RequiredArgsConstructor
 @Slf4j
+@Validated
 @Tag(name = "Bank Account Management", description = "APIs for managing bank accounts in the Eagle Bank system")
 public class BankAccountController extends BaseController {
 

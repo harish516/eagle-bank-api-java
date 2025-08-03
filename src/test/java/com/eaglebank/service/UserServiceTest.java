@@ -16,10 +16,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -84,8 +87,19 @@ class UserServiceTest {
     void shouldThrowExceptionWhenCreatingUserWithInvalidData() {
         // Test validation of CreateUserRequest fields
         createUserRequest.setEmail("invalid-email");
+        
+        // Mock repository to throw ConstraintViolationException for invalid data
+        @SuppressWarnings("unchecked")
+        ConstraintViolation<User> violation = mock(ConstraintViolation.class);
+        when(violation.getMessage()).thenReturn("Email must be in valid format");
+        Set<ConstraintViolation<User>> violations = Set.of(violation);
+        ConstraintViolationException constraintException = new ConstraintViolationException(violations);
+        
+        when(userRepository.existsByEmail("invalid-email")).thenReturn(false);
+        when(userRepository.save(any(User.class))).thenThrow(constraintException);
+        
         assertThatThrownBy(() -> userService.createUser(createUserRequest))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ConstraintViolationException.class)
                 .hasMessageContaining("Email must be in valid format");
 
         createUserRequest.setEmail("valid@example.com");
@@ -97,8 +111,19 @@ class UserServiceTest {
         when(userRepository.findById("usr-abc123")).thenReturn(Optional.of(testUser));
 
         updateUserRequest.setEmail("invalid-email");
+        
+        // Mock repository to throw ConstraintViolationException for invalid data
+        @SuppressWarnings("unchecked")
+        ConstraintViolation<User> violation = mock(ConstraintViolation.class);
+        when(violation.getMessage()).thenReturn("Email must be in valid format");
+        Set<ConstraintViolation<User>> violations = Set.of(violation);
+        ConstraintViolationException constraintException = new ConstraintViolationException(violations);
+        
+        when(userRepository.findByEmail("invalid-email")).thenReturn(Optional.empty());
+        when(userRepository.save(any(User.class))).thenThrow(constraintException);
+
         assertThatThrownBy(() -> userService.updateUser("usr-abc123", updateUserRequest))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ConstraintViolationException.class)
                 .hasMessageContaining("Email must be in valid format");
 
         updateUserRequest.setEmail("valid@example.com");

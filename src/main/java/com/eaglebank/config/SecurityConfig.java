@@ -12,6 +12,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.http.HttpMethod;
 
 @Configuration
 @EnableWebSecurity
@@ -29,7 +30,8 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/api/v1/users").permitAll() // Allow user registration
+                .requestMatchers(HttpMethod.GET, "/api/v1/users").permitAll() // Allow getting users without auth
+                .requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll() // Allow user registration without auth
                 .requestMatchers("/actuator/**").permitAll() // Allow health checks
                 .requestMatchers("/h2-console/**").permitAll() // Allow H2 console in dev
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**", "/v3/api-docs/**").permitAll() // Allow Swagger UI

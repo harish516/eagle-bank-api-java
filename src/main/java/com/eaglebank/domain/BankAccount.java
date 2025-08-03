@@ -23,6 +23,8 @@ import java.time.LocalDateTime;
 public class BankAccount {
 
     @Id
+    @NotBlank(message = "Account number is required")
+    @Pattern(regexp = "^01\\d{6}$", message = "Account number must match pattern ^01\\d{6}$")
     @Column(name = "account_number", nullable = false)
     private String accountNumber;
 
@@ -34,10 +36,12 @@ public class BankAccount {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @NotNull(message = "Account type is required")
     @Enumerated(EnumType.STRING)
     @Column(name = "account_type", nullable = false)
     private AccountType accountType;
 
+    @NotNull(message = "Balance is required")
     @DecimalMin(value = "0.00", message = "Balance must be at least 0")
     @DecimalMax(value = "10000.00", message = "Balance must not exceed 10000")
     @Column(name = "balance", nullable = false, precision = 10, scale = 2)
@@ -47,6 +51,7 @@ public class BankAccount {
     @Column(name = "currency", nullable = false)
     private String currency;
 
+    @NotNull(message = "User is required")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -59,25 +64,7 @@ public class BankAccount {
     @Column(name = "updated_timestamp", nullable = false)
     private LocalDateTime updatedTimestamp;
 
-    @PrePersist
-    @PreUpdate
-    public void validate() {
-        validateAccountNumber();
-        validateBalance();
-    }
-
-    private void validateAccountNumber() {
-        if (accountNumber != null && !accountNumber.matches("^01\\d{6}$")) {
-            throw new IllegalArgumentException("Account number must match pattern ^01\\d{6}$");
-        }
-    }
-
-    private void validateBalance() {
-        if (balance != null && (balance.compareTo(BigDecimal.ZERO) < 0 || balance.compareTo(new BigDecimal("10000.00")) > 0)) {
-            throw new IllegalArgumentException("Balance must be between 0 and 10000");
-        }
-    }
-
+    // Business logic methods - domain behavior
     public void deposit(BigDecimal amount) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Amount must be positive");
