@@ -1,11 +1,13 @@
 package com.eaglebank.config;
 
 import com.eaglebank.dto.ErrorResponse;
+import com.eaglebank.service.AuditService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -21,6 +23,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisplayName("CustomAccessDeniedHandler Tests")
 class CustomAccessDeniedHandlerTest {
 
+    @Mock
+    private AuditService auditService;
+    
     private CustomAccessDeniedHandler customAccessDeniedHandler;
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
@@ -28,7 +33,10 @@ class CustomAccessDeniedHandlerTest {
 
     @BeforeEach
     void setUp() {
-        customAccessDeniedHandler = new CustomAccessDeniedHandler();
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
+        objectMapper.disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        customAccessDeniedHandler = new CustomAccessDeniedHandler(objectMapper, auditService);
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
         accessDeniedException = new AccessDeniedException("Access is denied");

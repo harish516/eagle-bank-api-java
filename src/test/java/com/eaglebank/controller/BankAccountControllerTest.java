@@ -10,6 +10,8 @@ import com.eaglebank.domain.Currency;
 import com.eaglebank.exception.BankAccountNotFoundException;
 import com.eaglebank.service.interfaces.BankAccountServiceInterface;
 import com.eaglebank.service.interfaces.UserServiceInterface;
+import com.eaglebank.service.AuditService;
+import com.eaglebank.service.RateLimitService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,6 +50,12 @@ class BankAccountControllerTest {
 
     @MockBean
     private UserServiceInterface userService;
+
+    @MockBean
+    private AuditService auditService;
+
+    @MockBean
+    private RateLimitService rateLimitService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -100,6 +108,9 @@ class BankAccountControllerTest {
         listBankAccountsResponse = ListBankAccountsResponse.builder()
                 .accounts(Arrays.asList(testBankAccountResponse))
                 .build();
+
+        // Configure rate limit service to allow all requests in tests
+        when(rateLimitService.isAllowed(any(), any())).thenReturn(true);
     }
 
     @Test

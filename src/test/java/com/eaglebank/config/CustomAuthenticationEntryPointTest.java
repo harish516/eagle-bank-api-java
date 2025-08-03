@@ -1,11 +1,13 @@
 package com.eaglebank.config;
 
 import com.eaglebank.dto.ErrorResponse;
+import com.eaglebank.service.AuditService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -17,11 +19,17 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("CustomAuthenticationEntryPoint Tests")
 class CustomAuthenticationEntryPointTest {
 
+    @Mock
+    private AuditService auditService;
+    
     private CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
@@ -29,7 +37,10 @@ class CustomAuthenticationEntryPointTest {
 
     @BeforeEach
     void setUp() {
-        customAuthenticationEntryPoint = new CustomAuthenticationEntryPoint();
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
+        objectMapper.disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        customAuthenticationEntryPoint = new CustomAuthenticationEntryPoint(objectMapper, auditService);
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
         authenticationException = new BadCredentialsException("Bad credentials");

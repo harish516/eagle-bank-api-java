@@ -6,6 +6,8 @@ import com.eaglebank.dto.UpdateUserRequest;
 import com.eaglebank.dto.UserResponse;
 import com.eaglebank.exception.UserNotFoundException;
 import com.eaglebank.service.interfaces.UserServiceInterface;
+import com.eaglebank.service.AuditService;
+import com.eaglebank.service.RateLimitService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,6 +43,12 @@ class UserControllerTest {
 
     @MockBean
     private UserServiceInterface userService;
+
+    @MockBean
+    private AuditService auditService;
+
+    @MockBean
+    private RateLimitService rateLimitService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -80,6 +88,9 @@ class UserControllerTest {
                 .phoneNumber("+44987654321")
                 .email("updated@example.com")
                 .build();
+
+        // Configure rate limit service to allow all requests in tests
+        when(rateLimitService.isAllowed(any(), any())).thenReturn(true);
     }
 
     @Test

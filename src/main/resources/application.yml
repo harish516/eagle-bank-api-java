@@ -48,9 +48,19 @@ springdoc:
 keycloak:
   auth-server-url: http://localhost:8180
   realm: eagle-bank
-  resource: eagle-bank-api
-  public-client: true
-  principal-attribute: preferred_username
+
+# Security Configuration
+security:
+  rate-limit:
+    default:
+      requests-per-minute: 100
+      burst-capacity: 20
+    strict:
+      requests-per-minute: 20
+      burst-capacity: 5
+    relaxed:
+      requests-per-minute: 200
+      burst-capacity: 50
 
 server:
   port: 8080
@@ -71,10 +81,23 @@ management:
     health:
       show-details: always
 
+# Logging Configuration
 logging:
   level:
     com.eaglebank: DEBUG
+    com.eaglebank.service.AuditService: INFO
+    com.eaglebank.filter.RateLimitFilter: WARN
+    com.eaglebank.config.CustomAccessDeniedHandler: WARN
+    com.eaglebank.config.CustomAuthenticationEntryPoint: WARN
     org.springframework.security: DEBUG
     org.keycloak: DEBUG
     org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE 
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/eagle-bank-audit.log
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 30 
