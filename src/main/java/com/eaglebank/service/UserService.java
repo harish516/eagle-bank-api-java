@@ -63,8 +63,8 @@ public class UserService {
                     .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
             return mapToUserResponse(user);
         } catch (Exception e) {
-            if (e instanceof IllegalArgumentException) {
-                throw e; // Re-throw validation exceptions
+            if (e instanceof UserNotFoundException) {
+                throw e; // Re-throw not found exceptions
             }
             throw new IllegalStateException("Failed to retrieve user with ID: " + userId, e);
         }
@@ -140,8 +140,8 @@ public class UserService {
                     .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
             return mapToUserResponse(user);
         } catch (Exception e) {
-            if (e instanceof IllegalArgumentException) {
-                throw e; // Re-throw validation exceptions
+            if (e instanceof UserNotFoundException) {
+                throw e; // Re-throw validation and not found exceptions
             }
             throw new IllegalStateException("Failed to retrieve user with email: " + email, e);
         }

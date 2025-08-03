@@ -6,6 +6,7 @@ import com.eaglebank.domain.User;
 import com.eaglebank.dto.CreateUserRequest;
 import com.eaglebank.dto.UpdateUserRequest;
 import com.eaglebank.dto.UserResponse;
+import com.eaglebank.exception.UserNotFoundException;
 import com.eaglebank.repository.BankAccountRepository;
 import com.eaglebank.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -172,7 +173,7 @@ class UserServiceTest {
         when(userRepository.findById("usr-nonexistent")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.getUserById("usr-nonexistent"))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(UserNotFoundException.class)
                 .hasMessageContaining("User not found");
 
         verify(userRepository).findById("usr-nonexistent");
@@ -323,7 +324,7 @@ class UserServiceTest {
         when(userRepository.findById("usr-nonexistent")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.updateUser("usr-nonexistent", updateUserRequest))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(UserNotFoundException.class)
                 .hasMessageContaining("User not found with ID");
 
         verify(userRepository).findById("usr-nonexistent");
@@ -490,7 +491,7 @@ class UserServiceTest {
 
         // When & Then
         assertThatThrownBy(() -> userService.getUserByEmail(email))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(UserNotFoundException.class)
                 .hasMessage("User not found with email: nonexistent@example.com");
 
         verify(userRepository).findByEmail(email);
