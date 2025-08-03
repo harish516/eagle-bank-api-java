@@ -5,6 +5,7 @@ import com.eaglebank.dto.CreateUserRequest;
 import com.eaglebank.dto.ErrorResponse;
 import com.eaglebank.dto.UpdateUserRequest;
 import com.eaglebank.dto.UserResponse;
+import com.eaglebank.exception.CustomAccessDeniedException;
 import com.eaglebank.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -94,10 +95,7 @@ public class UserController extends BaseController {
         // Extract email from JWT token (this should be the primary identifier)
         String authenticatedEmail = getAuthenticatedEmail(authentication);
         if (authenticatedEmail == null) {
-            // In test environment or when security is disabled, skip authentication check
-            log.debug("No authenticated email found - proceeding without authentication check (likely test environment)");
-            UserResponse response = userService.getUserById(userId);
-            return ResponseEntity.ok(response);
+            throw new CustomAccessDeniedException("No authenticated email found - access denied");
         }
         
         UserResponse requestedUser = userService.getUserById(userId);
@@ -151,10 +149,7 @@ public class UserController extends BaseController {
         // Extract email from JWT token
         String authenticatedEmail = getAuthenticatedEmail(authentication);
         if (authenticatedEmail == null) {
-            // In test environment or when security is disabled, skip authentication check
-            log.debug("No authenticated email found - proceeding without authentication check (likely test environment)");
-            UserResponse response = userService.updateUser(userId, request);
-            return ResponseEntity.ok(response);
+            throw new CustomAccessDeniedException("No authenticated email found - access denied");
         }
         
         // First check if the user exists and if the authenticated user can access it
@@ -209,10 +204,7 @@ public class UserController extends BaseController {
         // Extract email from JWT token
         String authenticatedEmail = getAuthenticatedEmail(authentication);
         if (authenticatedEmail == null) {
-            // In test environment or when security is disabled, skip authentication check
-            log.debug("No authenticated email found - proceeding without authentication check (likely test environment)");
-            userService.deleteUser(userId);
-            return ResponseEntity.noContent().build();
+            throw new CustomAccessDeniedException("No authenticated email found - access denied");
         }
         
         // First check if the user exists and if the authenticated user can access it
@@ -256,8 +248,7 @@ public class UserController extends BaseController {
         // Extract email from JWT token
         String authenticatedEmail = getAuthenticatedEmail(authentication);
         if (authenticatedEmail == null) {
-            log.warn("No authenticated email found in token for /me endpoint");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            throw new CustomAccessDeniedException("No authenticated email found - access denied");
         }
         
         UserResponse response = userService.getUserByEmail(authenticatedEmail);
