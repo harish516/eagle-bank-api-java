@@ -22,4 +22,17 @@ public class UpdateBankAccountRequest {
     @Schema(description = "Account type (optional)", example = "personal")
     @Pattern(regexp = "personal", message = "Account type must be 'personal'")
     private String accountType;
+    
+    /**
+     * Validates that at least one field is provided for update.
+     * Throws IllegalArgumentException if both name and accountType are null or empty.
+     */
+    public void validate() {
+        boolean nameIsEmpty = name == null || name.trim().isEmpty();
+        boolean accountTypeIsEmpty = accountType == null || accountType.trim().isEmpty();
+        
+        if (nameIsEmpty && accountTypeIsEmpty) {
+            throw new IllegalArgumentException("At least one field (name or accountType) must be provided for update");
+        }
+    }
 }

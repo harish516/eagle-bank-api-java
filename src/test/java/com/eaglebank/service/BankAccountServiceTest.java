@@ -385,6 +385,60 @@ class BankAccountServiceTest {
         verify(bankAccountRepository, never()).save(any(BankAccount.class));
     }
 
+    @Test
+    void shouldThrowExceptionWhenBothFieldsAreEmpty() {
+        // Given - UpdateBankAccountRequest with both name and accountType as empty strings
+        UpdateBankAccountRequest emptyFieldsRequest = UpdateBankAccountRequest.builder()
+                .name("")
+                .accountType("")
+                .build();
+
+        // When & Then - Should throw IllegalArgumentException
+        assertThatThrownBy(() -> bankAccountService.updateBankAccount("01123456", emptyFieldsRequest))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("At least one field (name or accountType) must be provided for update");
+
+        // Verify that repository methods are not called when validation fails
+        verify(bankAccountRepository, never()).findByAccountNumber(anyString());
+        verify(bankAccountRepository, never()).save(any(BankAccount.class));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenBothFieldsAreWhitespace() {
+        // Given - UpdateBankAccountRequest with both name and accountType as whitespace
+        UpdateBankAccountRequest whitespaceFieldsRequest = UpdateBankAccountRequest.builder()
+                .name("   ")
+                .accountType("  \t  ")
+                .build();
+
+        // When & Then - Should throw IllegalArgumentException
+        assertThatThrownBy(() -> bankAccountService.updateBankAccount("01123456", whitespaceFieldsRequest))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("At least one field (name or accountType) must be provided for update");
+
+        // Verify that repository methods are not called when validation fails
+        verify(bankAccountRepository, never()).findByAccountNumber(anyString());
+        verify(bankAccountRepository, never()).save(any(BankAccount.class));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenBothFieldsAreNull() {
+        // Given - UpdateBankAccountRequest with both fields as null
+        UpdateBankAccountRequest nullFieldsRequest = UpdateBankAccountRequest.builder()
+                .name(null)
+                .accountType(null)
+                .build();
+
+        // When & Then - Should throw IllegalArgumentException
+        assertThatThrownBy(() -> bankAccountService.updateBankAccount("01123456", nullFieldsRequest))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("At least one field (name or accountType) must be provided for update");
+
+        // Verify that repository methods are not called when validation fails
+        verify(bankAccountRepository, never()).findByAccountNumber(anyString());
+        verify(bankAccountRepository, never()).save(any(BankAccount.class));
+    }
+
     /**
      * Tests for BankAccountService.deleteBankAccount() method.
      * This method deletes a bank account by account number, ensuring that the account exists and has zero balance before deletion.

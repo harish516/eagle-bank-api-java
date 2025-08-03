@@ -155,15 +155,18 @@ public class BankAccountService {
             throw new IllegalArgumentException("Update bank account request must not be null");
         }
         
+        // Validate that at least one field is provided for update
+        request.validate();
+        
         try {
             BankAccount bankAccount = bankAccountRepository.findByAccountNumber(accountNumber)
                     .orElseThrow(() -> new BankAccountNotFoundException("Bank account not found with account number: " + accountNumber));
 
-            // Update fields if provided
-            if (request.getName() != null) {
+            // Update fields if provided and not empty
+            if (request.getName() != null && !request.getName().trim().isEmpty()) {
                 bankAccount.setName(request.getName());
             }
-            if (request.getAccountType() != null) {
+            if (request.getAccountType() != null && !request.getAccountType().trim().isEmpty()) {
                 bankAccount.setAccountType(AccountType.valueOf(request.getAccountType().toUpperCase()));
             }
 
@@ -172,8 +175,8 @@ public class BankAccountService {
             return mapToBankAccountResponse(updatedBankAccount);
             
         } catch (Exception e) {
-            if (e instanceof IllegalArgumentException || e instanceof BankAccountNotFoundException) {
-                throw e; // Re-throw validation and not found exceptions
+            if (e instanceof BankAccountNotFoundException) {
+                throw e; // Re-throw not found exceptions
             }
             throw new IllegalStateException("Failed to update bank account with account number: " + accountNumber, e);
         }

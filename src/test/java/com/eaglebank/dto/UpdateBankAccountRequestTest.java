@@ -16,6 +16,8 @@ import jakarta.validation.ValidatorFactory;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 @DisplayName("UpdateBankAccountRequest Tests")
 class UpdateBankAccountRequestTest {
@@ -405,6 +407,230 @@ class UpdateBankAccountRequestTest {
             assertThat(validator.validate(onlyName)).isEmpty();
             assertThat(validator.validate(onlyAccountType)).isEmpty();
             assertThat(validator.validate(noFields)).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("Combined Field Validation Tests")
+    class CombinedFieldValidationTests {
+
+        @Test
+        @DisplayName("Should reject request when both name and accountType are empty")
+        void shouldRejectRequestWhenBothNameAndAccountTypeAreEmpty() {
+            // Given
+            UpdateBankAccountRequest request = UpdateBankAccountRequest.builder()
+                    .name("")
+                    .accountType("")
+                    .build();
+
+            // When
+            Set<ConstraintViolation<UpdateBankAccountRequest>> violations = validator.validate(request);
+
+            // Then
+            assertThat(violations).hasSizeGreaterThanOrEqualTo(2);
+            
+            // Check that both fields have violations
+            boolean hasNameViolation = violations.stream()
+                    .anyMatch(v -> v.getPropertyPath().toString().equals("name"));
+            boolean hasAccountTypeViolation = violations.stream()
+                    .anyMatch(v -> v.getPropertyPath().toString().equals("accountType"));
+            
+            assertThat(hasNameViolation).isTrue();
+            assertThat(hasAccountTypeViolation).isTrue();
+        }
+
+        @Test
+        @DisplayName("Should reject request when both name and accountType contain only whitespace")
+        void shouldRejectRequestWhenBothFieldsContainOnlyWhitespace() {
+            // Given
+            UpdateBankAccountRequest request = UpdateBankAccountRequest.builder()
+                    .name("   ")
+                    .accountType("  \t  ")
+                    .build();
+
+            // When
+            Set<ConstraintViolation<UpdateBankAccountRequest>> violations = validator.validate(request);
+
+            // Then
+            assertThat(violations).hasSizeGreaterThanOrEqualTo(2);
+            
+            // Check that both fields have violations
+            boolean hasNameViolation = violations.stream()
+                    .anyMatch(v -> v.getPropertyPath().toString().equals("name"));
+            boolean hasAccountTypeViolation = violations.stream()
+                    .anyMatch(v -> v.getPropertyPath().toString().equals("accountType"));
+            
+            assertThat(hasNameViolation).isTrue();
+            assertThat(hasAccountTypeViolation).isTrue();
+        }
+
+        @Test
+        @DisplayName("Should reject request when name is empty and accountType is invalid")
+        void shouldRejectRequestWhenNameIsEmptyAndAccountTypeIsInvalid() {
+            // Given
+            UpdateBankAccountRequest request = UpdateBankAccountRequest.builder()
+                    .name("")
+                    .accountType("invalid")
+                    .build();
+
+            // When
+            Set<ConstraintViolation<UpdateBankAccountRequest>> violations = validator.validate(request);
+
+            // Then
+            assertThat(violations).hasSizeGreaterThanOrEqualTo(2);
+            
+            // Check that both fields have violations
+            boolean hasNameViolation = violations.stream()
+                    .anyMatch(v -> v.getPropertyPath().toString().equals("name"));
+            boolean hasAccountTypeViolation = violations.stream()
+                    .anyMatch(v -> v.getPropertyPath().toString().equals("accountType"));
+            
+            assertThat(hasNameViolation).isTrue();
+            assertThat(hasAccountTypeViolation).isTrue();
+        }
+
+        @Test
+        @DisplayName("Should reject request when accountType is empty and name is whitespace")
+        void shouldRejectRequestWhenAccountTypeIsEmptyAndNameIsWhitespace() {
+            // Given
+            UpdateBankAccountRequest request = UpdateBankAccountRequest.builder()
+                    .name("  \n\t  ")
+                    .accountType("")
+                    .build();
+
+            // When
+            Set<ConstraintViolation<UpdateBankAccountRequest>> violations = validator.validate(request);
+
+            // Then
+            assertThat(violations).hasSizeGreaterThanOrEqualTo(2);
+            
+            // Check that both fields have violations
+            boolean hasNameViolation = violations.stream()
+                    .anyMatch(v -> v.getPropertyPath().toString().equals("name"));
+            boolean hasAccountTypeViolation = violations.stream()
+                    .anyMatch(v -> v.getPropertyPath().toString().equals("accountType"));
+            
+            assertThat(hasNameViolation).isTrue();
+            assertThat(hasAccountTypeViolation).isTrue();
+        }
+    }
+
+    @Nested
+    @DisplayName("Validate Method Tests")
+    class ValidateMethodTests {
+
+        @Test
+        @DisplayName("Should throw exception when both fields are null")
+        void shouldThrowExceptionWhenBothFieldsAreNull() {
+            // Given
+            UpdateBankAccountRequest request = UpdateBankAccountRequest.builder()
+                    .name(null)
+                    .accountType(null)
+                    .build();
+
+            // When & Then
+            assertThatThrownBy(() -> request.validate())
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("At least one field (name or accountType) must be provided for update");
+        }
+
+        @Test
+        @DisplayName("Should throw exception when both fields are empty")
+        void shouldThrowExceptionWhenBothFieldsAreEmpty() {
+            // Given
+            UpdateBankAccountRequest request = UpdateBankAccountRequest.builder()
+                    .name("")
+                    .accountType("")
+                    .build();
+
+            // When & Then
+            assertThatThrownBy(() -> request.validate())
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("At least one field (name or accountType) must be provided for update");
+        }
+
+        @Test
+        @DisplayName("Should throw exception when both fields are whitespace")
+        void shouldThrowExceptionWhenBothFieldsAreWhitespace() {
+            // Given
+            UpdateBankAccountRequest request = UpdateBankAccountRequest.builder()
+                    .name("   ")
+                    .accountType("  \t  ")
+                    .build();
+
+            // When & Then
+            assertThatThrownBy(() -> request.validate())
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("At least one field (name or accountType) must be provided for update");
+        }
+
+        @Test
+        @DisplayName("Should not throw exception when name is provided")
+        void shouldNotThrowExceptionWhenNameIsProvided() {
+            // Given
+            UpdateBankAccountRequest request = UpdateBankAccountRequest.builder()
+                    .name("Updated Account")
+                    .accountType(null)
+                    .build();
+
+            // When & Then - Should not throw any exception
+            assertThatCode(() -> request.validate()).doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("Should not throw exception when accountType is provided")
+        void shouldNotThrowExceptionWhenAccountTypeIsProvided() {
+            // Given
+            UpdateBankAccountRequest request = UpdateBankAccountRequest.builder()
+                    .name(null)
+                    .accountType("personal")
+                    .build();
+
+            // When & Then - Should not throw any exception
+            assertThatCode(() -> request.validate()).doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("Should not throw exception when both fields are provided")
+        void shouldNotThrowExceptionWhenBothFieldsAreProvided() {
+            // Given
+            UpdateBankAccountRequest request = UpdateBankAccountRequest.builder()
+                    .name("Updated Account")
+                    .accountType("personal")
+                    .build();
+
+            // When & Then - Should not throw any exception
+            assertThatCode(() -> request.validate()).doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("Should throw exception when name is empty and accountType is null")
+        void shouldThrowExceptionWhenNameIsEmptyAndAccountTypeIsNull() {
+            // Given
+            UpdateBankAccountRequest request = UpdateBankAccountRequest.builder()
+                    .name("")
+                    .accountType(null)
+                    .build();
+
+            // When & Then
+            assertThatThrownBy(() -> request.validate())
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("At least one field (name or accountType) must be provided for update");
+        }
+
+        @Test
+        @DisplayName("Should throw exception when name is null and accountType is empty")
+        void shouldThrowExceptionWhenNameIsNullAndAccountTypeIsEmpty() {
+            // Given
+            UpdateBankAccountRequest request = UpdateBankAccountRequest.builder()
+                    .name(null)
+                    .accountType("")
+                    .build();
+
+            // When & Then
+            assertThatThrownBy(() -> request.validate())
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("At least one field (name or accountType) must be provided for update");
         }
     }
 
