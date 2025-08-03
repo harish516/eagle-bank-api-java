@@ -93,7 +93,7 @@ public class BankAccountService {
                     .orElseThrow(() -> new BankAccountNotFoundException("Bank account not found with account number: " + accountNumber));
             return mapToBankAccountResponse(bankAccount);
         } catch (Exception e) {
-            if (e instanceof IllegalArgumentException || e instanceof BankAccountNotFoundException) {
+            if (e instanceof BankAccountNotFoundException) {
                 throw e; // Re-throw validation and not found exceptions
             }
             throw new IllegalStateException("Failed to retrieve bank account with account number: " + accountNumber, e);

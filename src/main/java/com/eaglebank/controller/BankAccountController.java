@@ -130,7 +130,7 @@ public class BankAccountController extends BaseController {
         
         // Check if the authenticated user owns this account
         boolean isOwner = userAccountsResponse.getAccounts().stream()
-                .anyMatch(account -> account.getAccountNumber().equals(accountNumber));
+                .anyMatch(account -> account.getAccountNumber().equals(requestedAccount.getAccountNumber()));
         
         if (!isOwner) {
             log.warn("User with email {} attempted to access account number: {} which they don't own", 
@@ -190,22 +190,6 @@ public class BankAccountController extends BaseController {
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<ListBankAccountsResponse> getCurrentUserBankAccounts(Authentication authentication) {
-        log.info("Getting current user's bank accounts");
-        
-        // Extract email from JWT token
-        String authenticatedEmail = getAuthenticatedEmail(authentication);
-        if (authenticatedEmail == null) {
-            throw new CustomAccessDeniedException("No authenticated email found - access denied");
-        }
-        
-        // Get the authenticated user
-        UserResponse user = userService.getUserByEmail(authenticatedEmail);
-        
-        ListBankAccountsResponse response = bankAccountService.getBankAccountsByUserId(user.getId());
-        return ResponseEntity.ok(response);
-    }
-
     @PatchMapping("/{accountNumber}")
     @Operation(summary = "Update bank account", description = "Updates bank account details. Users can only update their own accounts.")
     @SecurityRequirement(name = "bearerAuth")
@@ -247,6 +231,9 @@ public class BankAccountController extends BaseController {
         if (authenticatedEmail == null) {
             throw new CustomAccessDeniedException("No authenticated email found - access denied");
         }
+
+        // Get the requested bank account
+        BankAccountResponse requestedAccount = bankAccountService.getBankAccountByAccountNumber(accountNumber);
         
         // Get the authenticated user
         UserResponse user = userService.getUserByEmail(authenticatedEmail);
@@ -256,7 +243,7 @@ public class BankAccountController extends BaseController {
         
         // Check if the authenticated user owns this account
         boolean isOwner = userAccountsResponse.getAccounts().stream()
-                .anyMatch(account -> account.getAccountNumber().equals(accountNumber));
+                .anyMatch(account -> account.getAccountNumber().equals(requestedAccount.getAccountNumber()));
         
         if (!isOwner) {
             log.warn("User with email {} attempted to update account number: {} which they don't own", 
@@ -310,6 +297,9 @@ public class BankAccountController extends BaseController {
         if (authenticatedEmail == null) {
             throw new CustomAccessDeniedException("No authenticated email found - access denied");
         }
+
+        // Get the requested bank account
+        BankAccountResponse requestedAccount = bankAccountService.getBankAccountByAccountNumber(accountNumber);
         
         // Get the authenticated user
         UserResponse user = userService.getUserByEmail(authenticatedEmail);
@@ -319,7 +309,7 @@ public class BankAccountController extends BaseController {
         
         // Check if the authenticated user owns this account
         boolean isOwner = userAccountsResponse.getAccounts().stream()
-                .anyMatch(account -> account.getAccountNumber().equals(accountNumber));
+                .anyMatch(account -> account.getAccountNumber().equals(requestedAccount.getAccountNumber()));
         
         if (!isOwner) {
             log.warn("User with email {} attempted to delete account number: {} which they don't own", 

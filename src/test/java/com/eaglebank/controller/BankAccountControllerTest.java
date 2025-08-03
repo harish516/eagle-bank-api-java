@@ -200,6 +200,8 @@ class BankAccountControllerTest {
     @Test
     void shouldUpdateBankAccountSuccessfully() throws Exception {
         when(userService.getUserByEmail("test@example.com")).thenReturn(testUserResponse);
+        when(bankAccountService.getBankAccountByAccountNumber("01234567"))
+                .thenReturn(testBankAccountResponse);
         when(bankAccountService.getBankAccountsByUserId("usr-abc123")).thenReturn(listBankAccountsResponse);
         when(bankAccountService.updateBankAccount(eq("01234567"), any(UpdateBankAccountRequest.class)))
                 .thenReturn(testBankAccountResponse);
@@ -238,6 +240,8 @@ class BankAccountControllerTest {
         when(userService.getUserByEmail("test@example.com")).thenReturn(testUserResponse);
         when(bankAccountService.getBankAccountsByUserId("usr-abc123")).thenReturn(listBankAccountsResponse);
         doNothing().when(bankAccountService).deleteBankAccount("01234567");
+        when(bankAccountService.getBankAccountByAccountNumber("01234567"))
+                .thenReturn(testBankAccountResponse);
 
         mockMvc.perform(delete("/api/v1/accounts/01234567")
                         .with(jwt()
@@ -251,21 +255,21 @@ class BankAccountControllerTest {
     }
 
     @Test
-    void shouldReturnInternalServerErrorWhenDeletingNonExistentAccount() throws Exception {
-        when(userService.getUserByEmail("test@example.com")).thenReturn(testUserResponse);
-        when(bankAccountService.getBankAccountsByUserId("usr-abc123")).thenReturn(listBankAccountsResponse);
+    void shouldReturnNotFoundWhenDeletingNonExistentAccount() throws Exception {
         doThrow(new BankAccountNotFoundException("Bank account not found"))
-                .when(bankAccountService).deleteBankAccount("01999999");
+                .when(bankAccountService).getBankAccountByAccountNumber("01999999");
 
         mockMvc.perform(delete("/api/v1/accounts/01999999")
                         .with(jwt()
                                 .authorities(new SimpleGrantedAuthority("ROLE_USER"))
                                 .jwt(builder -> builder.claim("email", "test@example.com"))))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.message").value("Forbidden - User can only delete their own accounts"));
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Bank account not found"));
 
-        verify(userService).getUserByEmail("test@example.com");
-        verify(bankAccountService).getBankAccountsByUserId("usr-abc123");
+        // Only verify the method that gets called before the exception
+        verify(bankAccountService).getBankAccountByAccountNumber("01999999");
+        // getUserByEmail and getBankAccountsByUserId are not called because 
+        // getBankAccountByAccountNumber throws exception first
     }
 
     @Test
