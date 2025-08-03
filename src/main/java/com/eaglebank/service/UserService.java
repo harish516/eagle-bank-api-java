@@ -1,5 +1,6 @@
 package com.eaglebank.service;
 
+import com.eaglebank.service.interfaces.UserServiceInterface;
 import com.eaglebank.domain.BankAccount;
 import com.eaglebank.domain.User;
 import com.eaglebank.dto.CreateUserRequest;
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-public class UserService {
+public class UserService implements UserServiceInterface {
 
     private final UserRepository userRepository;
     private final BankAccountRepository bankAccountRepository;

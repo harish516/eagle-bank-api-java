@@ -1,5 +1,6 @@
 package com.eaglebank.service;
 
+import com.eaglebank.service.interfaces.BankAccountServiceInterface;
 import com.eaglebank.config.BankAccountProperties;
 import com.eaglebank.domain.AccountType;
 import com.eaglebank.domain.BankAccount;
@@ -32,7 +33,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-public class BankAccountService {
+public class BankAccountService implements BankAccountServiceInterface {
 
     private final BankAccountRepository bankAccountRepository;
     private final UserRepository userRepository;

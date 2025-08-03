@@ -8,8 +8,8 @@ import com.eaglebank.dto.UserResponse;
 import com.eaglebank.domain.Address;
 import com.eaglebank.domain.Currency;
 import com.eaglebank.exception.BankAccountNotFoundException;
-import com.eaglebank.service.BankAccountService;
-import com.eaglebank.service.UserService;
+import com.eaglebank.service.interfaces.BankAccountServiceInterface;
+import com.eaglebank.service.interfaces.UserServiceInterface;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,10 +44,10 @@ class BankAccountControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private BankAccountService bankAccountService;
+    private BankAccountServiceInterface bankAccountService;
 
     @MockBean
-    private UserService userService;
+    private UserServiceInterface userService;
 
     @Autowired
     private ObjectMapper objectMapper;

@@ -8,8 +8,8 @@ import com.eaglebank.dto.ListBankAccountsResponse;
 import com.eaglebank.dto.UpdateBankAccountRequest;
 import com.eaglebank.dto.UserResponse;
 import com.eaglebank.exception.CustomAccessDeniedException;
-import com.eaglebank.service.BankAccountService;
-import com.eaglebank.service.UserService;
+import com.eaglebank.service.interfaces.BankAccountServiceInterface;
+import com.eaglebank.service.interfaces.UserServiceInterface;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -34,8 +34,8 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Bank Account Management", description = "APIs for managing bank accounts in the Eagle Bank system")
 public class BankAccountController extends BaseController {
 
-    private final BankAccountService bankAccountService;
-    private final UserService userService;
+    private final BankAccountServiceInterface bankAccountService;
+    private final UserServiceInterface userService;
 
     @PostMapping
     @Operation(summary = "Create a new bank account", description = "Creates a new bank account for the authenticated user")

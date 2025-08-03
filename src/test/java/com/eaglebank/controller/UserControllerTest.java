@@ -5,7 +5,7 @@ import com.eaglebank.dto.CreateUserRequest;
 import com.eaglebank.dto.UpdateUserRequest;
 import com.eaglebank.dto.UserResponse;
 import com.eaglebank.exception.UserNotFoundException;
-import com.eaglebank.service.UserService;
+import com.eaglebank.service.interfaces.UserServiceInterface;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +40,7 @@ class UserControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private UserService userService;
+    private UserServiceInterface userService;
 
     @Autowired
     private ObjectMapper objectMapper;

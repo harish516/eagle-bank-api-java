@@ -1,5 +1,6 @@
 package com.eaglebank.service;
 
+import com.eaglebank.service.interfaces.TransactionServiceInterface;
 import com.eaglebank.domain.BankAccount;
 import com.eaglebank.domain.Transaction;
 import com.eaglebank.domain.TransactionType;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -24,7 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-public class TransactionService {
+public class TransactionService implements TransactionServiceInterface {
 
     private final TransactionRepository transactionRepository;
     private final BankAccountRepository bankAccountRepository;
@@ -196,6 +198,58 @@ public class TransactionService {
         bankAccountRepository.save(bankAccount);
         
         log.info("Transaction {} deleted successfully for account {}", transactionId, accountNumber);
+    }
+
+    /**
+     * Updates an existing transaction
+     *
+     * @param accountNumber the account number
+     * @param transactionId the transaction ID to update
+     * @param request the transaction update request
+     * @param currentUserId the current authenticated user ID
+     * @return the updated transaction response
+     * @throws BankAccountNotFoundException if the bank account is not found
+     * @throws TransactionNotFoundException if the transaction is not found
+     * @throws CustomAccessDeniedException if the user doesn't own the account
+     */
+    public TransactionResponse updateTransaction(String accountNumber, String transactionId, CreateTransactionRequest request, String currentUserId) {
+        log.info("Updating transaction {} for account {} by user {}", transactionId, accountNumber, currentUserId);
+        
+        // Find the bank account to verify ownership
+        BankAccount bankAccount = bankAccountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new BankAccountNotFoundException("Bank account not found with account number: " + accountNumber));
+        
+        // Check ownership
+        if (!bankAccount.getUser().getId().equals(currentUserId)) {
+            log.warn("User {} attempted to update transaction {} for account {} owned by {}", 
+                    currentUserId, transactionId, accountNumber, bankAccount.getUser().getId());
+            throw new CustomAccessDeniedException("You don't have permission to update transactions for this account");
+        }
+        
+        Transaction transaction = transactionRepository.findByAccountNumberAndTransactionId(accountNumber, transactionId)
+                .orElseThrow(() -> new TransactionNotFoundException("Transaction not found with ID: " + transactionId + " for account: " + accountNumber));
+        
+        // Validate the request
+        if (request.getAmount() == null || request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Transaction amount must be positive");
+        }
+        if (request.getType() == null) {
+            throw new IllegalArgumentException("Transaction type is required");
+        }
+        
+        // Update transaction fields
+        transaction.setAmount(request.getAmount());
+        transaction.setCurrency(request.getCurrency().name());
+        transaction.setType(request.getType());
+        if (request.getReference() != null) {
+            transaction.setReference(request.getReference());
+        }
+        
+        Transaction savedTransaction = transactionRepository.save(transaction);
+        
+        log.info("Transaction {} updated successfully for account {}", transactionId, accountNumber);
+        
+        return mapToTransactionResponse(savedTransaction);
     }
 
     /**

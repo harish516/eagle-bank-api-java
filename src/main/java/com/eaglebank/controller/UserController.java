@@ -6,7 +6,7 @@ import com.eaglebank.dto.ErrorResponse;
 import com.eaglebank.dto.UpdateUserRequest;
 import com.eaglebank.dto.UserResponse;
 import com.eaglebank.exception.CustomAccessDeniedException;
-import com.eaglebank.service.UserService;
+import com.eaglebank.service.interfaces.UserServiceInterface;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -33,7 +33,7 @@ import java.util.List;
 @Tag(name = "User Management", description = "APIs for managing users in the Eagle Bank system")
 public class UserController extends BaseController {
 
-    private final UserService userService;
+    private final UserServiceInterface userService;
 
     @PostMapping
     @Operation(summary = "Create a new user", description = "Creates a new user account in the system")
