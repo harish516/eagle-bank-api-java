@@ -158,20 +158,26 @@ class BankAccountControllerTest {
     }
 
     @Test
-    void shouldReturnNotFoundWhenBankAccountDoesNotExist() throws Exception {
+    void shouldReturnNotFoundWhenAccountDoesNotExist() throws Exception {
+        // Given - A user is authenticated
         when(userService.getUserByEmail("test@example.com")).thenReturn(testUserResponse);
-        when(bankAccountService.getBankAccountByAccountNumber("01999999"))
-                .thenThrow(new BankAccountNotFoundException("Bank account not found"));
+        
+        // And the account doesn't exist
+        String nonExistentAccountNumber = "99999999";
+        when(bankAccountService.getBankAccountByAccountNumber(nonExistentAccountNumber))
+                .thenThrow(new BankAccountNotFoundException("Bank account not found with account number: " + nonExistentAccountNumber));
 
-        mockMvc.perform(get("/api/v1/accounts/01999999")
+        // When - User makes a GET request to /api/v1/accounts/{accountId}
+        mockMvc.perform(get("/api/v1/accounts/" + nonExistentAccountNumber)
                         .with(jwt()
                                 .authorities(new SimpleGrantedAuthority("ROLE_USER"))
                                 .jwt(builder -> builder.claim("email", "test@example.com"))))
-                .andExpect(status().isInternalServerError())
-                .andExpect(jsonPath("$.message").value("An unexpected error occurred"));
+                // Then - System returns Not Found status code and error message
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Bank account not found with account number: " + nonExistentAccountNumber));
 
         verify(userService).getUserByEmail("test@example.com");
-        verify(bankAccountService).getBankAccountByAccountNumber("01999999");
+        verify(bankAccountService).getBankAccountByAccountNumber(nonExistentAccountNumber);
     }
 
     @Test

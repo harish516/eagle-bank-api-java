@@ -68,6 +68,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
+    @ExceptionHandler(BankAccountNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleBankAccountNotFoundException(BankAccountNotFoundException e) {
+        log.error("Bank account not found exception: {}", e.getMessage());
+        ErrorResponse error = ErrorResponse.builder()
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
     @ExceptionHandler(CustomAccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleCustomAccessDeniedException(CustomAccessDeniedException e) {
         log.error("Access denied exception: {}", e.getMessage());
