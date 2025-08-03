@@ -7,6 +7,7 @@ import com.eaglebank.domain.Currency;
 import com.eaglebank.domain.User;
 import com.eaglebank.dto.BankAccountResponse;
 import com.eaglebank.dto.CreateBankAccountRequest;
+import com.eaglebank.dto.ListBankAccountsResponse;
 import com.eaglebank.dto.UpdateBankAccountRequest;
 import com.eaglebank.exception.BankAccountNotFoundException;
 import com.eaglebank.exception.UserNotFoundException;
@@ -99,7 +100,7 @@ public class BankAccountService {
         }
     }
 
-    public List<BankAccountResponse> getBankAccountsByUserId(String userId) {
+    public ListBankAccountsResponse getBankAccountsByUserId(String userId) {
         log.info("Getting bank accounts for user ID: {}", userId);
         
         // Validate user ID
@@ -114,9 +115,13 @@ public class BankAccountService {
             }
             
             List<BankAccount> bankAccounts = bankAccountRepository.findByUserId(userId);
-            return bankAccounts.stream()
+            List<BankAccountResponse> bankAccountResponses = bankAccounts.stream()
                     .map(this::mapToBankAccountResponse)
                     .collect(Collectors.toList());
+            
+            return ListBankAccountsResponse.builder()
+                    .accounts(bankAccountResponses)
+                    .build();
         } catch (Exception e) {
             if (e instanceof IllegalArgumentException || e instanceof UserNotFoundException) {
                 throw e; // Re-throw validation and not found exceptions
