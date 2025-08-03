@@ -29,6 +29,11 @@ keycloak:
   public-client: true
   principal-attribute: preferred_username
 
+# Eagle Bank specific configuration for testing
+eagle-bank:
+  bank-account:
+    default-sort-code: "99-88-77"  # Different sort code for test environment
+
 logging:
   level:
     com.eaglebank: INFO

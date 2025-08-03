@@ -29,6 +29,11 @@ keycloak:
   public-client: true
   principal-attribute: preferred_username
 
+# Eagle Bank specific configuration for development
+eagle-bank:
+  bank-account:
+    default-sort-code: "12-34-56"  # Different sort code for dev environment
+
 logging:
   level:
     com.eaglebank: DEBUG

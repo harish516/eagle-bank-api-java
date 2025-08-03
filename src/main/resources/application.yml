@@ -57,6 +57,11 @@ server:
   servlet:
     context-path: /eagle-bank
 
+# Eagle Bank specific configuration
+eagle-bank:
+  bank-account:
+    default-sort-code: "10-10-10"
+
 management:
   endpoints:
     web:
