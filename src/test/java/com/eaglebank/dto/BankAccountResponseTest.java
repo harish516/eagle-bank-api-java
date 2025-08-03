@@ -1,6 +1,5 @@
 package com.eaglebank.dto;
 
-import com.eaglebank.domain.AccountType;
 import com.eaglebank.domain.Currency;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -801,7 +800,7 @@ class BankAccountResponseTest {
                             .sortCode("10-10-10")
                             .name("Concurrent Account " + index)
                             .accountType("personal")
-                            .balance(1000.00 + index)
+                            .balance(new BigDecimal("1000.00").add(new BigDecimal(index)))
                             .currency(Currency.GBP)
                             .createdTimestamp(testCreatedTimestamp)
                             .updatedTimestamp(testUpdatedTimestamp)
@@ -818,7 +817,7 @@ class BankAccountResponseTest {
             for (int i = 0; i < numberOfThreads; i++) {
                 assertThat(responses[i]).isNotNull();
                 assertThat(responses[i].getName()).isEqualTo("Concurrent Account " + i);
-                assertThat(responses[i].getBalance()).isEqualTo(1000.00 + i);
+                assertThat(responses[i].getBalance()).isEqualTo(new BigDecimal("1000.00").add(new BigDecimal(i)));
             }
         }
 
@@ -826,14 +825,14 @@ class BankAccountResponseTest {
         @DisplayName("Should handle balance precision edge cases")
         void shouldHandleBalancePrecisionEdgeCases() {
             // Given
-            double[] edgeCaseBalances = {
-                    0.001, // More than 2 decimal places
-                    0.009, // Rounding edge case
-                    9999.999, // Near maximum with extra precision
-                    1234.567 // Multiple decimal places
+            BigDecimal[] edgeCaseBalances = {
+                    new BigDecimal("0.001"), // More than 2 decimal places
+                    new BigDecimal("0.009"), // Rounding edge case
+                    new BigDecimal("9999.999"), // Near maximum with extra precision
+                    new BigDecimal("1234.567") // Multiple decimal places
             };
 
-            for (double balance : edgeCaseBalances) {
+            for (BigDecimal balance : edgeCaseBalances) {
                 // When
                 BankAccountResponse response = BankAccountResponse.builder()
                         .accountNumber("01234567")
@@ -878,7 +877,7 @@ class BankAccountResponseTest {
             assertThat(response.getName()).isEqualTo("Fluent Account");
             assertThat(response.getAccountType()).isEqualTo("personal");
             assertThat(response.getBalance()).isEqualTo(new BigDecimal("1500.75"));
-            assertThat(response.getCurrency()).isEqualTo("GBP");
+            assertThat(response.getCurrency()).isEqualTo(Currency.GBP);
             assertThat(response.getCreatedTimestamp()).isEqualTo(testCreatedTimestamp);
             assertThat(response.getUpdatedTimestamp()).isEqualTo(testUpdatedTimestamp);
         }
