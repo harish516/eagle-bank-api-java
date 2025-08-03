@@ -19,6 +19,7 @@ import org.springframework.context.annotation.FilterType;
 import com.eaglebank.config.JpaAuditingConfig;
 import com.eaglebank.config.SecurityConfig;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -30,15 +31,9 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(controllers = UserController.class, 
-        excludeAutoConfiguration = {
-                OAuth2ResourceServerAutoConfiguration.class,
-                SecurityAutoConfiguration.class
-        },
-        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {
-                JpaAuditingConfig.class,
-                SecurityConfig.class
-        }))
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+
+@WebMvcTest(controllers = UserController.class)
 class UserControllerTest {
 
     @Autowired
@@ -93,6 +88,8 @@ class UserControllerTest {
         when(userService.createUser(any(CreateUserRequest.class))).thenReturn(testUserResponse);
 
         mockMvc.perform(post("/api/v1/users")
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_USER"))
+                .jwt(builder -> builder.claim("email", "test@example.com")))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createUserRequest)))
                 .andExpect(status().isCreated())
@@ -104,11 +101,13 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser
     void shouldGetUserByIdSuccessfully() throws Exception {
         when(userService.getUserById("usr-abc123")).thenReturn(testUserResponse);
+        when(userService.getUserByEmail("test@example.com")).thenReturn(testUserResponse);
 
-        mockMvc.perform(get("/api/v1/users/usr-abc123"))
+        mockMvc.perform(get("/api/v1/users/usr-abc123")
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_USER"))
+                .jwt(builder -> builder.claim("email", "test@example.com"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("usr-abc123"))
                 .andExpect(jsonPath("$.name").value("Test User"));
@@ -128,8 +127,12 @@ class UserControllerTest {
 
         when(userService.updateUser(eq("usr-abc123"), any(UpdateUserRequest.class)))
                 .thenReturn(updatedResponse);
+        when(userService.getUserById("usr-abc123")).thenReturn(updatedResponse);
+
 
         mockMvc.perform(patch("/api/v1/users/usr-abc123")
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_USER"))
+                .jwt(builder -> builder.claim("email", "updated@example.com")))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateUserRequest)))
                 .andExpect(status().isOk())
@@ -143,8 +146,11 @@ class UserControllerTest {
     @WithMockUser
     void shouldDeleteUserSuccessfully() throws Exception {
         doNothing().when(userService).deleteUser("usr-abc123");
+        when(userService.getUserById("usr-abc123")).thenReturn(testUserResponse);
 
-        mockMvc.perform(delete("/api/v1/users/usr-abc123"))
+        mockMvc.perform(delete("/api/v1/users/usr-abc123")
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_USER"))
+                .jwt(builder -> builder.claim("email", "test@example.com"))))
                 .andExpect(status().isNoContent());
 
         verify(userService).deleteUser("usr-abc123");
@@ -160,6 +166,8 @@ class UserControllerTest {
                 .build();
 
         mockMvc.perform(post("/api/v1/users")
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_USER"))
+                .jwt(builder -> builder.claim("email", "test@example.com")))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(invalidRequest)))
                 .andExpect(status().isBadRequest());
@@ -173,7 +181,9 @@ class UserControllerTest {
         when(userService.getUserById("usr-nonexistent"))
                 .thenThrow(new UserNotFoundException("User not found"));
 
-        mockMvc.perform(get("/api/v1/users/usr-nonexistent"))
+        mockMvc.perform(get("/api/v1/users/usr-nonexistent")
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_USER"))
+                .jwt(builder -> builder.claim("email", "test@example.com"))))
                 .andExpect(status().isNotFound());
 
         verify(userService).getUserById("usr-nonexistent");
@@ -184,8 +194,11 @@ class UserControllerTest {
     void shouldReturnConflictWhenDeletingUserWithAccounts() throws Exception {
         doThrow(new IllegalStateException("Cannot delete user with associated bank accounts"))
                 .when(userService).deleteUser("usr-abc123");
+         when(userService.getUserById("usr-abc123")).thenReturn(testUserResponse);
 
-        mockMvc.perform(delete("/api/v1/users/usr-abc123"))
+        mockMvc.perform(delete("/api/v1/users/usr-abc123")
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_USER"))
+                .jwt(builder -> builder.claim("email", "test@example.com"))))
                 .andExpect(status().isConflict());
 
         verify(userService).deleteUser("usr-abc123");

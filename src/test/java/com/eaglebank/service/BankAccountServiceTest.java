@@ -8,6 +8,7 @@ import com.eaglebank.domain.Currency;
 import com.eaglebank.domain.User;
 import com.eaglebank.dto.BankAccountResponse;
 import com.eaglebank.dto.CreateBankAccountRequest;
+import com.eaglebank.dto.ListBankAccountsResponse;
 import com.eaglebank.dto.UpdateBankAccountRequest;
 import com.eaglebank.exception.BankAccountNotFoundException;
 import com.eaglebank.exception.UserNotFoundException;
@@ -228,12 +229,12 @@ class BankAccountServiceTest {
         when(userRepository.existsById("usr-abc123")).thenReturn(true);
         when(bankAccountRepository.findByUserId("usr-abc123")).thenReturn(bankAccounts);
 
-        List<BankAccountResponse> result = bankAccountService.getBankAccountsByUserId("usr-abc123");
+        ListBankAccountsResponse result = bankAccountService.getBankAccountsByUserId("usr-abc123");
 
         assertThat(result).isNotNull();
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getAccountNumber()).isEqualTo("01123456");
-        assertThat(result.get(0).getName()).isEqualTo("Test Account");
+        assertThat(result.getAccounts()).hasSize(1);
+        assertThat(result.getAccounts().get(0).getAccountNumber()).isEqualTo("01123456");
+        assertThat(result.getAccounts().get(0).getName()).isEqualTo("Test Account");
 
         verify(userRepository).existsById("usr-abc123");
         verify(bankAccountRepository).findByUserId("usr-abc123");
@@ -244,10 +245,10 @@ class BankAccountServiceTest {
         when(userRepository.existsById("usr-abc123")).thenReturn(true);
         when(bankAccountRepository.findByUserId("usr-abc123")).thenReturn(Collections.emptyList());
 
-        List<BankAccountResponse> result = bankAccountService.getBankAccountsByUserId("usr-abc123");
+        ListBankAccountsResponse result = bankAccountService.getBankAccountsByUserId("usr-abc123");
 
         assertThat(result).isNotNull();
-        assertThat(result).isEmpty();
+        assertThat(result.getAccounts()).isEmpty();
 
         verify(userRepository).existsById("usr-abc123");
         verify(bankAccountRepository).findByUserId("usr-abc123");
