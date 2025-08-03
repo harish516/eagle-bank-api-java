@@ -141,8 +141,8 @@ public class BankAccountController extends BaseController {
         return ResponseEntity.ok(requestedAccount);
     }
 
-    @GetMapping("/user/{userId}")
-    @Operation(summary = "Get bank accounts by user ID", description = "Retrieves all bank accounts for a specific user. Users can only access their own accounts.")
+    @GetMapping
+    @Operation(summary = "Get user bank accounts", description = "Retrieves all bank accounts of authenticated user. Users can only access their own accounts.")
     @SecurityRequirement(name = "bearerAuth")
     @SecurityRequirement(name = "oauth2")
     @ApiResponses(value = {
@@ -169,10 +169,8 @@ public class BankAccountController extends BaseController {
                     examples = @ExampleObject(
                         value = "{\"message\": \"An unexpected error occurred\", \"timestamp\": \"2024-01-15T10:30:00\"}")))
     })
-    public ResponseEntity<ListBankAccountsResponse> getBankAccountsByUserId(
-            @Parameter(description = "User ID", required = true) @PathVariable String userId,
-            Authentication authentication) {
-        log.info("Getting bank accounts for user ID: {}", userId);
+    public ResponseEntity<ListBankAccountsResponse> getBankAccounts(Authentication authentication) {
+        log.info("Getting user bank accounts");
         
         // Extract email from JWT token
         String authenticatedEmail = getAuthenticatedEmail(authentication);
@@ -184,39 +182,14 @@ public class BankAccountController extends BaseController {
         UserResponse authenticatedUser = userService.getUserByEmail(authenticatedEmail);
         
         // Check if the authenticated user is requesting their own accounts
-        if (!authenticatedUser.getId().equals(userId)) {
-            log.warn("User with email {} attempted to access accounts for user ID: {} but they are user ID: {}", 
-                authenticatedEmail, userId, authenticatedUser.getId());
-            throw new IllegalStateException("Forbidden - User can only access their own accounts");
+        if (authenticatedUser == null || authenticatedUser.getId() == null) {
+            throw new IllegalStateException("Forbidden - User ID cannot be found for authenticated user");
         }
         
-        ListBankAccountsResponse response = bankAccountService.getBankAccountsByUserId(userId);
+        ListBankAccountsResponse response = bankAccountService.getBankAccountsByUserId(authenticatedUser.getId());
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/me")
-    @Operation(summary = "Get current user's bank accounts", description = "Retrieves all bank accounts for the currently authenticated user")
-    @SecurityRequirement(name = "bearerAuth")
-    @SecurityRequirement(name = "oauth2")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Bank accounts found",
-                content = @Content(mediaType = "application/json")),
-        @ApiResponse(responseCode = "401", description = "Unauthorized",
-                content = @Content(mediaType = "application/json", 
-                    schema = @Schema(implementation = ErrorResponse.class),
-                    examples = @ExampleObject(
-                        value = "{\"message\": \"Unauthorized\", \"timestamp\": \"2024-01-15T10:30:00\"}"))),
-        @ApiResponse(responseCode = "404", description = "Authenticated user not found in database",
-                content = @Content(mediaType = "application/json", 
-                    schema = @Schema(implementation = ErrorResponse.class),
-                    examples = @ExampleObject(
-                        value = "{\"message\": \"Authenticated user not found in database\", \"timestamp\": \"2024-01-15T10:30:00\"}"))),
-        @ApiResponse(responseCode = "500", description = "Internal server error",
-                content = @Content(mediaType = "application/json", 
-                    schema = @Schema(implementation = ErrorResponse.class),
-                    examples = @ExampleObject(
-                        value = "{\"message\": \"An unexpected error occurred\", \"timestamp\": \"2024-01-15T10:30:00\"}")))
-    })
     public ResponseEntity<ListBankAccountsResponse> getCurrentUserBankAccounts(Authentication authentication) {
         log.info("Getting current user's bank accounts");
         

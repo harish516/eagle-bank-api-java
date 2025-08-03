@@ -175,43 +175,11 @@ class BankAccountControllerTest {
     }
 
     @Test
-    void shouldGetBankAccountsByUserIdSuccessfully() throws Exception {
+    void shouldGetBankAccountsSuccessfully() throws Exception {
         when(userService.getUserByEmail("test@example.com")).thenReturn(testUserResponse);
         when(bankAccountService.getBankAccountsByUserId("usr-abc123")).thenReturn(listBankAccountsResponse);
 
-        mockMvc.perform(get("/api/v1/accounts/user/usr-abc123")
-                        .with(jwt()
-                                .authorities(new SimpleGrantedAuthority("ROLE_USER"))
-                                .jwt(builder -> builder.claim("email", "test@example.com"))))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accounts").isArray())
-                .andExpect(jsonPath("$.accounts[0].accountNumber").value("01234567"));
-
-        verify(userService).getUserByEmail("test@example.com");
-        verify(bankAccountService).getBankAccountsByUserId("usr-abc123");
-    }
-
-    @Test
-    void shouldReturnForbiddenWhenAccessingOtherUserAccounts() throws Exception {
-        when(userService.getUserByEmail("test@example.com")).thenReturn(testUserResponse);
-
-        mockMvc.perform(get("/api/v1/accounts/user/usr-other123")
-                        .with(jwt()
-                                .authorities(new SimpleGrantedAuthority("ROLE_USER"))
-                                .jwt(builder -> builder.claim("email", "test@example.com"))))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.message").value("Forbidden - User can only access their own accounts"));
-
-        verify(userService).getUserByEmail("test@example.com");
-        verifyNoInteractions(bankAccountService);
-    }
-
-    @Test
-    void shouldGetCurrentUserBankAccountsSuccessfully() throws Exception {
-        when(userService.getUserByEmail("test@example.com")).thenReturn(testUserResponse);
-        when(bankAccountService.getBankAccountsByUserId("usr-abc123")).thenReturn(listBankAccountsResponse);
-
-        mockMvc.perform(get("/api/v1/accounts/me")
+        mockMvc.perform(get("/api/v1/accounts")
                         .with(jwt()
                                 .authorities(new SimpleGrantedAuthority("ROLE_USER"))
                                 .jwt(builder -> builder.claim("email", "test@example.com"))))
@@ -291,6 +259,41 @@ class BankAccountControllerTest {
                 .andExpect(jsonPath("$.message").value("Forbidden - User can only delete their own accounts"));
 
         verify(userService).getUserByEmail("test@example.com");
+        verify(bankAccountService).getBankAccountsByUserId("usr-abc123");
+    }
+
+    @Test
+    void shouldReturnForbiddenWhenUserTriesToAccessAnotherUsersAccount() throws Exception {
+        // Given - User tries to access another user's account
+        String anotherUserAccountNumber = "09876543";
+        
+        BankAccountResponse anotherUserAccount = BankAccountResponse.builder()
+                .accountNumber(anotherUserAccountNumber)
+                .sortCode("20-20-20")
+                .name("Another User Account")
+                .accountType("personal")
+                .balance(new BigDecimal("500.00"))
+                .currency(Currency.GBP)
+                .createdTimestamp(LocalDateTime.now())
+                .updatedTimestamp(LocalDateTime.now())
+                .build();
+
+        when(userService.getUserByEmail("test@example.com")).thenReturn(testUserResponse);
+        when(bankAccountService.getBankAccountByAccountNumber(anotherUserAccountNumber))
+                .thenReturn(anotherUserAccount);
+        when(bankAccountService.getBankAccountsByUserId("usr-abc123"))
+                .thenReturn(listBankAccountsResponse); // This only contains account "01234567"
+
+        // When & Then
+        mockMvc.perform(get("/api/v1/accounts/" + anotherUserAccountNumber)
+                        .with(jwt()
+                                .authorities(new SimpleGrantedAuthority("ROLE_USER"))
+                                .jwt(builder -> builder.claim("email", "test@example.com"))))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Forbidden - User can only access their own accounts"));
+
+        verify(userService).getUserByEmail("test@example.com");
+        verify(bankAccountService).getBankAccountByAccountNumber(anotherUserAccountNumber);
         verify(bankAccountService).getBankAccountsByUserId("usr-abc123");
     }
 }
