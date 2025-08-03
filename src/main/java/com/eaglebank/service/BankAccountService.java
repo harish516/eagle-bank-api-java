@@ -4,14 +4,18 @@ import com.eaglebank.config.BankAccountProperties;
 import com.eaglebank.domain.AccountType;
 import com.eaglebank.domain.BankAccount;
 import com.eaglebank.domain.Currency;
+import com.eaglebank.domain.Transaction;
+import com.eaglebank.domain.TransactionType;
 import com.eaglebank.domain.User;
 import com.eaglebank.dto.BankAccountResponse;
 import com.eaglebank.dto.CreateBankAccountRequest;
+import com.eaglebank.dto.CreateTransactionRequest;
 import com.eaglebank.dto.ListBankAccountsResponse;
 import com.eaglebank.dto.UpdateBankAccountRequest;
 import com.eaglebank.exception.BankAccountNotFoundException;
 import com.eaglebank.exception.UserNotFoundException;
 import com.eaglebank.repository.BankAccountRepository;
+import com.eaglebank.repository.TransactionRepository;
 import com.eaglebank.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +36,7 @@ public class BankAccountService {
 
     private final BankAccountRepository bankAccountRepository;
     private final UserRepository userRepository;
+    private final TransactionRepository transactionRepository;
     private final BankAccountProperties bankAccountProperties;
     private final Random random = new Random();
 
@@ -230,5 +235,69 @@ public class BankAccountService {
                 .createdTimestamp(bankAccount.getCreatedTimestamp())
                 .updatedTimestamp(bankAccount.getUpdatedTimestamp())
                 .build();
+    }
+
+    public BankAccountResponse createTransaction(String accountNumber, CreateTransactionRequest request) {
+        log.info("Creating transaction for account: {}", accountNumber);
+
+        // Validate input parameters
+        if (accountNumber == null || accountNumber.trim().isEmpty()) {
+            throw new IllegalArgumentException("Account number must not be null or empty");
+        }
+        if (request == null) {
+            throw new IllegalArgumentException("Create transaction request must not be null");
+        }
+
+        try {
+            // Find the bank account
+            BankAccount bankAccount = bankAccountRepository.findByAccountNumber(accountNumber)
+                    .orElseThrow(() -> new BankAccountNotFoundException(
+                            "Bank account not found with account number: " + accountNumber));
+
+            // Calculate new balance based on transaction type
+            BigDecimal currentBalance = bankAccount.getBalance();
+            BigDecimal newBalance;
+            
+            if (request.getType() == TransactionType.DEPOSIT) {
+                newBalance = currentBalance.add(request.getAmount());
+                log.info("Processing DEPOSIT: {} + {} = {}", currentBalance, request.getAmount(), newBalance);
+            } else if (request.getType() == TransactionType.WITHDRAWAL) {
+                newBalance = currentBalance.subtract(request.getAmount());
+                log.info("Processing WITHDRAWAL: {} - {} = {}", currentBalance, request.getAmount(), newBalance);
+            } else {
+                throw new IllegalArgumentException("Unsupported transaction type: " + request.getType());
+            }
+
+            // Create and save the transaction
+            Transaction transaction = Transaction.builder()
+                    .amount(request.getAmount())
+                    .currency(request.getCurrency().name())
+                    .type(request.getType())
+                    .reference(request.getReference())
+                    .bankAccount(bankAccount)
+                    .userId(bankAccount.getUser().getId())
+                    .createdTimestamp(LocalDateTime.now())
+                    .build();
+
+            Transaction savedTransaction = transactionRepository.save(transaction);
+            log.info("Transaction saved with ID: {}", savedTransaction.getId());
+
+            // Update bank account balance
+            bankAccount.setBalance(newBalance);
+            bankAccount.setUpdatedTimestamp(LocalDateTime.now());
+            BankAccount updatedAccount = bankAccountRepository.save(bankAccount);
+            
+            log.info("Account balance updated from {} to {}", currentBalance, newBalance);
+
+            // Return updated bank account response
+            return mapToBankAccountResponse(updatedAccount);
+
+        } catch (BankAccountNotFoundException e) {
+            log.error("Bank account not found: {}", accountNumber);
+            throw e;
+        } catch (Exception e) {
+            log.error("Failed to create transaction for account {}: {}", accountNumber, e.getMessage());
+            throw new IllegalStateException("Failed to create transaction", e);
+        }
     }
 }
