@@ -1,0 +1,5853 @@
+{
+	"info": {
+		"_postman_id": "2030b50a-9f0a-4936-bded-073ac52ebde4",
+		"name": "Eagle Bank",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "865674",
+		"_collection_link": "https://www.postman.com/speeding-equinox-655623/workspace/eagle-bank/collection/865674-2030b50a-9f0a-4936-bded-073ac52ebde4?action=share&source=collection_link&creator=865674"
+	},
+	"item": [
+		{
+			"name": "Create a user",
+			"item": [
+				{
+					"name": "Scenario - No Auth: Create a new user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Get User ID\", function () {\r",
+									"    pm.response.to.have.status(201); // status code is 201\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"USER_ID\", jsonData.id);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Harry\",\r\n    \"address\": {\r\n        \"line1\": \"123 Street\",\r\n        \"town\": \"London\",\r\n        \"county\": \"Greater London\",\r\n        \"postcode\": \"AB1 2CD\"\r\n    },\r\n    \"phoneNumber\": \"+449898989898\",\r\n    \"email\": \"harry@example.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/users",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario - No Auth: Create a new user",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Harry\",\r\n    \"address\": {\r\n        \"line1\": \"123 Street\",\r\n        \"town\": \"London\",\r\n        \"county\": \"Greater London\",\r\n        \"postcode\": \"AB1 2CD\"\r\n    },\r\n    \"phoneNumber\": \"+449898989898\",\r\n    \"email\": \"harry@example.com\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/users",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "18"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "DEFAULT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 03 Aug 2025 20:26:31 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"usr-d98b6005cf1442eeb51c6b1102f21dac\",\n    \"name\": \"Harry\",\n    \"address\": {\n        \"line1\": \"123 Street\",\n        \"line2\": null,\n        \"line3\": null,\n        \"town\": \"London\",\n        \"county\": \"Greater London\",\n        \"postcode\": \"AB1 2CD\"\n    },\n    \"phoneNumber\": \"+449898989898\",\n    \"email\": \"harry@example.com\",\n    \"createdTimestamp\": \"2025-08-03T20:26:31.003164912\",\n    \"updatedTimestamp\": \"2025-08-03T20:26:31.003164912\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Scenario: Create a new user without supplying all required data",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Bad Request\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"test\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/users",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: Create a new user without supplying all required data",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"test\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/users",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "99"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "DEFAULT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 03 Aug 2025 20:27:25 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Validation failed\",\n    \"details\": {\n        \"phoneNumber\": \"Phone number is required\",\n        \"email\": \"Email is required\"\n    },\n    \"timestamp\": \"2025-08-03T20:27:25.734814203\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Fetch a user",
+			"item": [
+				{
+					"name": "Scenario: User wants to fetch their user details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Bad Request\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/users/{{USER_ID}}",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"{{USER_ID}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to fetch their user details",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/users/{{USER_ID}}",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"{{USER_ID}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "199"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "RELAXED"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 03 Aug 2025 20:33:47 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"usr-d98b6005cf1442eeb51c6b1102f21dac\",\n    \"name\": \"Harry\",\n    \"address\": {\n        \"line1\": \"123 Street\",\n        \"line2\": null,\n        \"line3\": null,\n        \"town\": \"London\",\n        \"county\": \"Greater London\",\n        \"postcode\": \"AB1 2CD\"\n    },\n    \"phoneNumber\": \"+449898989898\",\n    \"email\": \"harry@example.com\",\n    \"createdTimestamp\": \"2025-08-03T20:26:31.003165\",\n    \"updatedTimestamp\": \"2025-08-03T20:26:31.003165\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Scenario: User wants to fetch the user details of another user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Bad Request\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/users/{{JOHN_DOE_USER_ID}}",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"{{JOHN_DOE_USER_ID}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to fetch the user details of another user",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/users/{{JOHN_DOE_USER_ID}}",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"{{JOHN_DOE_USER_ID}}"
+									]
+								}
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "199"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "RELAXED"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 03 Aug 2025 20:34:09 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Forbidden - User can only access their own data\",\n    \"timestamp\": \"2025-08-03T20:34:09.030840339\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Scenario: User wants to fetch the user details of a non-existent user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Bad Request\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/users/{{NON_EXISTANT_USER_ID}}",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"{{NON_EXISTANT_USER_ID}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to fetch the user details of a non-existent user",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/users/{{NON_EXISTANT_USER_ID}}",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"{{NON_EXISTANT_USER_ID}}"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "198"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "RELAXED"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 03 Aug 2025 20:34:39 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"User not found with ID: usr-111111111111111111111111111111111\",\n    \"timestamp\": \"2025-08-03T20:34:39.364818522\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Update a user",
+			"item": [
+				{
+					"name": "Scenario: User wants to update their user details",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"phoneNumber\": \"+445656565656\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/users/{{USER_ID}}",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"{{USER_ID}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to update their user details",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"phoneNumber\": \"+445656565656\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/users/{{USER_ID}}",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"{{USER_ID}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "99"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "DEFAULT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 03 Aug 2025 20:35:45 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"usr-d98b6005cf1442eeb51c6b1102f21dac\",\n    \"name\": \"Harry\",\n    \"address\": {\n        \"line1\": \"123 Street\",\n        \"line2\": null,\n        \"line3\": null,\n        \"town\": \"London\",\n        \"county\": \"Greater London\",\n        \"postcode\": \"AB1 2CD\"\n    },\n    \"phoneNumber\": \"+445656565656\",\n    \"email\": \"harry@example.com\",\n    \"createdTimestamp\": \"2025-08-03T20:26:31.003165\",\n    \"updatedTimestamp\": \"2025-08-03T20:35:45.254124686\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Scenario: User wants to update the user details of another user",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Samuel\",\r\n    \"address\": {\r\n        \"line1\": \"123 Street\",\r\n        \"line2\": null,\r\n        \"line3\": null,\r\n        \"town\": \"Manchester\",\r\n        \"county\": \"Greater Manchester\",\r\n        \"postcode\": \"AB1 2CD\"\r\n    },\r\n    \"phoneNumber\": \"+44123456789\",\r\n    \"email\": \"john.doe@example.com\",\r\n    \"createdTimestamp\": \"2025-08-03T13:42:48.715399\",\r\n    \"updatedTimestamp\": \"2025-08-03T13:42:48.715399\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/users/{{JOHN_DOE_USER_ID}}",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"{{JOHN_DOE_USER_ID}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to update the user details of another user",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Samuel\",\r\n    \"address\": {\r\n        \"line1\": \"123 Street\",\r\n        \"line2\": null,\r\n        \"line3\": null,\r\n        \"town\": \"Manchester\",\r\n        \"county\": \"Greater Manchester\",\r\n        \"postcode\": \"AB1 2CD\"\r\n    },\r\n    \"phoneNumber\": \"+44123456789\",\r\n    \"email\": \"john.doe@example.com\",\r\n    \"createdTimestamp\": \"2025-08-03T13:42:48.715399\",\r\n    \"updatedTimestamp\": \"2025-08-03T13:42:48.715399\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/users/{{JOHN_DOE_USER_ID}}",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"{{JOHN_DOE_USER_ID}}"
+									]
+								}
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "98"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "DEFAULT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 03 Aug 2025 20:39:36 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Forbidden - User can only access their own data\",\n    \"timestamp\": \"2025-08-03T20:39:36.130481126\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Scenario: User wants to update the user details of a non-existent user",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Samuel\",\r\n    \"address\": {\r\n        \"line1\": \"123 Street\",\r\n        \"line2\": null,\r\n        \"line3\": null,\r\n        \"town\": \"Manchester\",\r\n        \"county\": \"Greater Manchester\",\r\n        \"postcode\": \"AB1 2CD\"\r\n    },\r\n    \"phoneNumber\": \"+44123456789\",\r\n    \"email\": \"john.doe@example.com\",\r\n    \"createdTimestamp\": \"2025-08-03T13:42:48.715399\",\r\n    \"updatedTimestamp\": \"2025-08-03T13:42:48.715399\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/users/{{NON_EXISTANT_USER_ID}}",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"{{NON_EXISTANT_USER_ID}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to update the user details of a non-existent user",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Samuel\",\r\n    \"address\": {\r\n        \"line1\": \"123 Street\",\r\n        \"line2\": null,\r\n        \"line3\": null,\r\n        \"town\": \"Manchester\",\r\n        \"county\": \"Greater Manchester\",\r\n        \"postcode\": \"AB1 2CD\"\r\n    },\r\n    \"phoneNumber\": \"+44123456789\",\r\n    \"email\": \"john.doe@example.com\",\r\n    \"createdTimestamp\": \"2025-08-03T13:42:48.715399\",\r\n    \"updatedTimestamp\": \"2025-08-03T13:42:48.715399\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/users/{{NON_EXISTANT_USER_ID}}",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"{{NON_EXISTANT_USER_ID}}"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "97"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "DEFAULT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 03 Aug 2025 20:39:54 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"User not found with ID: usr-111111111111111111111111111111111\",\n    \"timestamp\": \"2025-08-03T20:39:54.505493926\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Delete a User",
+			"item": [
+				{
+					"name": "Scenario: User wants to delete user details of another user",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/users/{{JOHN_DOE_USER_ID}}",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"{{JOHN_DOE_USER_ID}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to delete user details of another user",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/users/{{JOHN_DOE_USER_ID}}",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"{{JOHN_DOE_USER_ID}}"
+									]
+								}
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "99"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "DEFAULT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 03 Aug 2025 20:40:30 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Forbidden - User can only access their own data\",\n    \"timestamp\": \"2025-08-03T20:40:30.008918343\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Scenario: User wants to delete user details of a non-existent user",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/users/{{NON_EXISTANT_USER_ID}}",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"{{NON_EXISTANT_USER_ID}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to delete user details of a non-existent user",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/users/{{NON_EXISTANT_USER_ID}}",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"{{NON_EXISTANT_USER_ID}}"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "98"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "DEFAULT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 03 Aug 2025 20:40:43 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"User not found with ID: usr-111111111111111111111111111111111\",\n    \"timestamp\": \"2025-08-03T20:40:43.142370384\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Create a Bank Account",
+			"item": [
+				{
+					"name": "Scenario: User wants to create a new bank account",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Savings Account\",\r\n  \"accountType\": \"personal\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/accounts",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"accounts"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to create a new bank account",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Salary Bank Account\",\r\n  \"accountType\": \"personal\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "97"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "DEFAULT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 03 Aug 2025 20:41:14 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"accountNumber\": \"01528234\",\n    \"sortCode\": \"12-34-56\",\n    \"name\": \"Salary Bank Account\",\n    \"accountType\": \"personal\",\n    \"balance\": 0,\n    \"currency\": \"GBP\",\n    \"createdTimestamp\": \"2025-08-03T20:41:14.004745234\",\n    \"updatedTimestamp\": \"2025-08-03T20:41:14.004745234\"\n}"
+						},
+						{
+							"name": "Scenario: User wants to create a new bank account",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Savings Account\",\r\n  \"accountType\": \"personal\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "99"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "DEFAULT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 03 Aug 2025 20:43:55 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"accountNumber\": \"01366627\",\n    \"sortCode\": \"12-34-56\",\n    \"name\": \"Savings Account\",\n    \"accountType\": \"personal\",\n    \"balance\": 0,\n    \"currency\": \"GBP\",\n    \"createdTimestamp\": \"2025-08-03T20:43:55.083248702\",\n    \"updatedTimestamp\": \"2025-08-03T20:43:55.083248702\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Scenario: User wants to create a new bank account without supplying all required data",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Salary Bank Account\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/accounts",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"accounts"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to create a new bank account without supplying all required data",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"accountType\": \"personal\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "99"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "DEFAULT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 03 Aug 2025 20:44:31 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Validation failed\",\n    \"details\": {\n        \"name\": \"Account name is required\"\n    },\n    \"timestamp\": \"2025-08-03T20:44:31.954444058\"\n}"
+						},
+						{
+							"name": "Scenario: User wants to create a new bank account without supplying all required data",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Salary Bank Account\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "98"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "DEFAULT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 03 Aug 2025 20:44:43 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Validation failed\",\n    \"details\": {\n        \"accountType\": \"Account type is required\"\n    },\n    \"timestamp\": \"2025-08-03T20:44:43.215884949\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "List bank accounts",
+			"item": [
+				{
+					"name": "Scenario: User wants to view their bank accounts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Get Bank Account ID\", function () {\r",
+									"    pm.response.to.have.status(200); // status code is 201\r",
+									"    var jsonData = pm.response.json();\r",
+									"    if (jsonData.accounts && jsonData.accounts.length > 0) {\r",
+									"        pm.collectionVariables.set(\"USER_BANK_ACC_ID\", jsonData.accounts[0].accountNumber);\r",
+									"    }\r",
+									"    if (jsonData.accounts && jsonData.accounts.length > 1) {\r",
+									"        pm.collectionVariables.set(\"USER_SECOND_BANK_ACC_ID\", jsonData.accounts[1].accountNumber);\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/accounts",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"accounts"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to view their bank accounts",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "198"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "RELAXED"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 03 Aug 2025 20:46:00 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"accounts\": [\n        {\n            \"accountNumber\": \"01528234\",\n            \"sortCode\": \"12-34-56\",\n            \"name\": \"Salary Bank Account\",\n            \"accountType\": \"personal\",\n            \"balance\": 0,\n            \"currency\": \"GBP\",\n            \"createdTimestamp\": \"2025-08-03T20:41:14.004745\",\n            \"updatedTimestamp\": \"2025-08-03T20:41:14.004745\"\n        },\n        {\n            \"accountNumber\": \"01366627\",\n            \"sortCode\": \"12-34-56\",\n            \"name\": \"Savings Account\",\n            \"accountType\": \"personal\",\n            \"balance\": 0,\n            \"currency\": \"GBP\",\n            \"createdTimestamp\": \"2025-08-03T20:43:55.083249\",\n            \"updatedTimestamp\": \"2025-08-03T20:43:55.083249\"\n        }\n    ]\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Fetch a Bank Account",
+			"item": [
+				{
+					"name": "Scenario: User wants to fetch their bank account details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/accounts/{{USER_BANK_ACC_ID}}",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"accounts",
+								"{{USER_BANK_ACC_ID}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to fetch their bank account details",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{USER_BANK_ACC_ID}}",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{USER_BANK_ACC_ID}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "199"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "RELAXED"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 03 Aug 2025 20:46:32 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"accountNumber\": \"01528234\",\n    \"sortCode\": \"12-34-56\",\n    \"name\": \"Salary Bank Account\",\n    \"accountType\": \"personal\",\n    \"balance\": 0,\n    \"currency\": \"GBP\",\n    \"createdTimestamp\": \"2025-08-03T20:41:14.004745\",\n    \"updatedTimestamp\": \"2025-08-03T20:41:14.004745\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Scenario: User wants to fetch another user's bank account details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/accounts/{{OTHER_USER_BANK_ACC_ID}}",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"accounts",
+								"{{OTHER_USER_BANK_ACC_ID}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to fetch another user's bank account details",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{OTHER_USER_BANK_ACC_ID}}",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{OTHER_USER_BANK_ACC_ID}}"
+									]
+								}
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "198"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "RELAXED"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 03 Aug 2025 20:46:45 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Forbidden - User can only access their own accounts\",\n    \"timestamp\": \"2025-08-03T20:46:45.148740515\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Scenario: User wants to fetch a non-existent bank account",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/accounts/{{NON_EXISTANT_BANK_ACC_ID}}",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"accounts",
+								"{{NON_EXISTANT_BANK_ACC_ID}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to fetch a non-existent bank account",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{NON_EXISTANT_BANK_ACC_ID}}",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{NON_EXISTANT_BANK_ACC_ID}}"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "197"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "RELAXED"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 03 Aug 2025 20:46:58 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Bank account not found with account number: 1111111111\",\n    \"timestamp\": \"2025-08-03T20:46:58.104605994\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Update a Bank Account",
+			"item": [
+				{
+					"name": "Scenario: User wants to update their bank account details",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"accountNumber\": \"01528234\",\r\n    \"sortCode\": \"12-34-67\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/accounts/{{USER_BANK_ACC_ID}}",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"accounts",
+								"{{USER_BANK_ACC_ID}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to update their bank account details",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Income Account\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{USER_BANK_ACC_ID}}",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{USER_BANK_ACC_ID}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "99"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "DEFAULT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 03 Aug 2025 20:48:25 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"accountNumber\": \"01528234\",\n    \"sortCode\": \"12-34-56\",\n    \"name\": \"Income Account\",\n    \"accountType\": \"personal\",\n    \"balance\": 0,\n    \"currency\": \"GBP\",\n    \"createdTimestamp\": \"2025-08-03T20:41:14.004745\",\n    \"updatedTimestamp\": \"2025-08-03T20:48:25.24015125\"\n}"
+						},
+						{
+							"name": "Scenario: User wants to update their bank account details",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"accountNumber\": \"01528234\",\r\n    \"sortCode\": \"12-34-67\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{USER_BANK_ACC_ID}}",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{USER_BANK_ACC_ID}}"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "99"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "DEFAULT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 03 Aug 2025 20:49:17 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"At least one field (name or accountType) must be provided for update\",\n    \"timestamp\": \"2025-08-03T20:49:17.727614676\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Scenario: User wants to update another user's bank account details",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"accountNumber\": \"01900676\",\r\n    \"sortCode\": \"12-34-56\",\r\n    \"name\": \"My Savings Account\",\r\n    \"balance\": 0,\r\n    \"currency\": \"GBP\",\r\n    \"createdTimestamp\": \"2025-08-03T14:15:42.784351\",\r\n    \"updatedTimestamp\": \"2025-08-03T14:15:42.784351\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/accounts/{{OTHER_USER_BANK_ACC_ID}}",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"accounts",
+								"{{OTHER_USER_BANK_ACC_ID}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to update another user's bank account details",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"accountNumber\": \"01900676\",\r\n    \"sortCode\": \"12-34-56\",\r\n    \"name\": \"My Savings Account\",\r\n    \"balance\": 0,\r\n    \"currency\": \"GBP\",\r\n    \"createdTimestamp\": \"2025-08-03T14:15:42.784351\",\r\n    \"updatedTimestamp\": \"2025-08-03T14:15:42.784351\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{OTHER_USER_BANK_ACC_ID}}",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{OTHER_USER_BANK_ACC_ID}}"
+									]
+								}
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "98"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "DEFAULT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 03 Aug 2025 20:49:40 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Forbidden - User can only update their own accounts\",\n    \"timestamp\": \"2025-08-03T20:49:40.708325254\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Scenario: User wants to fetch a non-existent bank account",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"accountNumber\": \"01900676\",\r\n    \"sortCode\": \"12-34-56\",\r\n    \"name\": \"My Savings Account\",\r\n    \"balance\": 0,\r\n    \"currency\": \"GBP\",\r\n    \"createdTimestamp\": \"2025-08-03T14:15:42.784351\",\r\n    \"updatedTimestamp\": \"2025-08-03T14:15:42.784351\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/accounts/{{NON_EXISTANT_BANK_ACC_ID}}",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"accounts",
+								"{{NON_EXISTANT_BANK_ACC_ID}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to fetch a non-existent bank account",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"accountNumber\": \"01900676\",\r\n    \"sortCode\": \"12-34-56\",\r\n    \"name\": \"My Savings Account\",\r\n    \"balance\": 0,\r\n    \"currency\": \"GBP\",\r\n    \"createdTimestamp\": \"2025-08-03T14:15:42.784351\",\r\n    \"updatedTimestamp\": \"2025-08-03T14:15:42.784351\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{NON_EXISTANT_BANK_ACC_ID}}",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{NON_EXISTANT_BANK_ACC_ID}}"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "97"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "DEFAULT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 03 Aug 2025 20:49:53 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Bank account not found with account number: 1111111111\",\n    \"timestamp\": \"2025-08-03T20:49:53.56398967\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Delete a Bank Account",
+			"item": [
+				{
+					"name": "Scenario: User deletes an existing bank account",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/accounts/{{USER_BANK_ACC_ID}}",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"accounts",
+								"{{USER_BANK_ACC_ID}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User deletes an existing bank account",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{USER_BANK_ACC_ID}}",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{USER_BANK_ACC_ID}}"
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "19"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "STRICT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 03 Aug 2025 20:52:42 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": null
+						}
+					]
+				},
+				{
+					"name": "Scenario: User wants to delete another user's bank account details",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/accounts/{{OTHER_USER_BANK_ACC_ID}}",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"accounts",
+								"{{OTHER_USER_BANK_ACC_ID}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to delete another user's bank account details",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{OTHER_USER_BANK_ACC_ID}}",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{OTHER_USER_BANK_ACC_ID}}"
+									]
+								}
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "3"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "STRICT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 03 Aug 2025 20:51:44 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Forbidden - User can only delete their own accounts\",\n    \"timestamp\": \"2025-08-03T20:51:44.737373538\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Scenario: User wants to delete a non-existent bank account",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/accounts/{{NON_EXISTANT_BANK_ACC_ID}}",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"accounts",
+								"{{NON_EXISTANT_BANK_ACC_ID}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to delete a non-existent bank account",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{NON_EXISTANT_BANK_ACC_ID}}",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{NON_EXISTANT_BANK_ACC_ID}}"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "STRICT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 03 Aug 2025 20:51:39 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Bank account not found with account number: 1111111111\",\n    \"timestamp\": \"2025-08-03T20:51:39.992720934\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Create a Transaction",
+			"item": [
+				{
+					"name": "Scenario: User wants to deposit money into their bank account",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"amount\": 1000,\r\n  \"currency\": \"GBP\",\r\n  \"type\": \"DEPOSIT\",\r\n  \"reference\": \"Monthly salary deposit\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/accounts/{{USER_BANK_ACC_ID}}/transactions",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"accounts",
+								"{{USER_BANK_ACC_ID}}",
+								"transactions"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to deposit money into their bank account",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"amount\": 1000,\r\n  \"currency\": \"GBP\",\r\n  \"type\": \"DEPOSIT\",\r\n  \"reference\": \"Monthly salary deposit\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{USER_BANK_ACC_ID}}/transactions",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{USER_BANK_ACC_ID}}",
+										"transactions"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "3"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "STRICT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 04 Aug 2025 05:22:02 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"tan-6570290378544997118\",\n    \"amount\": 1000,\n    \"currency\": \"GBP\",\n    \"type\": \"DEPOSIT\",\n    \"reference\": \"Monthly salary deposit\",\n    \"userId\": \"usr-d98b6005cf1442eeb51c6b1102f21dac\",\n    \"createdTimestamp\": \"2025-08-04T05:22:02.445984054\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Scenario: User wants to withdraw money from their bank account",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"amount\": 1000,\r\n  \"currency\": \"GBP\",\r\n  \"type\": \"WITHDRAWAL\",\r\n  \"reference\": \"Monthly salary deposit\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/accounts/{{USER_BANK_ACC_ID}}/transactions",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"accounts",
+								"{{USER_BANK_ACC_ID}}",
+								"transactions"
+							]
+						},
+						"description": "## Create Transaction\n\nThis endpoint allows you to create a new transaction for a specific bank account. It supports various transaction types, such as deposits and withdrawals.\n\n### Request\n\n**Method:** POST  \n**URL:** `{{base-api-url}}/api/v1/accounts/{{USER_BANK_ACC_ID}}/transactions`\n\n**Request Body:**  \nThe request body must be in JSON format and should include the following parameters:\n\n- **amount** (number, required): The amount of money to be transacted.\n    \n- **currency** (string, required): The currency in which the transaction is made (e.g., \"GBP\").\n    \n- **type** (string, required): The type of transaction, such as \"WITHDRAWAL\" or \"DEPOSIT\".\n    \n- **reference** (string, optional): A reference note for the transaction, providing additional context (e.g., \"Monthly salary deposit\").\n    \n\n**Example Request Body:**\n\n``` json\n{\n  \"amount\": 1000,\n  \"currency\": \"GBP\",\n  \"type\": \"WITHDRAWAL\",\n  \"reference\": \"Monthly salary deposit\"\n}\n\n ```\n\n### Response\n\nUpon a successful transaction creation, the API will return a JSON object containing the following fields:\n\n- **id** (string): Unique identifier for the transaction.\n    \n- **amount** (number): The amount of the transaction.\n    \n- **currency** (string): The currency used for the transaction.\n    \n- **type** (string): The type of transaction.\n    \n- **reference** (string): The reference note associated with the transaction.\n    \n- **userId** (string): The ID of the user associated with the transaction.\n    \n- **createdTimestamp** (string): The timestamp when the transaction was created.\n    \n\n**Example Response:**\n\n``` json\n{\n  \"id\": \"12345\",\n  \"amount\": 1000,\n  \"currency\": \"GBP\",\n  \"type\": \"WITHDRAWAL\",\n  \"reference\": \"Monthly salary deposit\",\n  \"userId\": \"67890\",\n  \"createdTimestamp\": \"2023-10-01T12:00:00Z\"\n}\n\n ```\n\n### Notes\n\n- Ensure that the `USER_BANK_ACC_ID` is valid and corresponds to an existing bank account.\n    \n- The `amount` should be a positive number, and the `currency` should be a valid ISO currency code.\n    \n- The response will include the transaction details upon successful creation, including a unique transaction ID."
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to withdraw money from their bank account",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"amount\": 1000,\r\n  \"currency\": \"GBP\",\r\n  \"type\": \"WITHDRAWAL\",\r\n  \"reference\": \"Monthly salary deposit\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{USER_BANK_ACC_ID}}/transactions",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{USER_BANK_ACC_ID}}",
+										"transactions"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "19"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "STRICT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 04 Aug 2025 05:26:54 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"tan-89855845642137824\",\n    \"amount\": 1000,\n    \"currency\": \"GBP\",\n    \"type\": \"WITHDRAWAL\",\n    \"reference\": \"Monthly salary deposit\",\n    \"userId\": \"usr-d98b6005cf1442eeb51c6b1102f21dac\",\n    \"createdTimestamp\": \"2025-08-04T05:26:54.497265894\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Scenario: User wants to withdraw money from their bank account but they have insufficient funds",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"amount\": 1000,\r\n  \"currency\": \"GBP\",\r\n  \"type\": \"WITHDRAWAL\",\r\n  \"reference\": \"bills\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/accounts/{{USER_BANK_ACC_ID}}/transactions",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"accounts",
+								"{{USER_BANK_ACC_ID}}",
+								"transactions"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to withdraw money from their bank account but they have insufficient funds",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"amount\": 1000,\r\n  \"currency\": \"GBP\",\r\n  \"type\": \"WITHDRAWAL\",\r\n  \"reference\": \"bills\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{USER_BANK_ACC_ID}}/transactions",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{USER_BANK_ACC_ID}}",
+										"transactions"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "19"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "STRICT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 04 Aug 2025 05:28:27 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Insufficient funds. Available balance: 0.00\",\n    \"timestamp\": \"2025-08-04T05:28:27.727146166\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Scenario: User wants to deposit or withdraw money into another user's bank account",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"amount\": 1000,\r\n  \"currency\": \"GBP\",\r\n  \"type\": \"WITHDRAWAL\",\r\n  \"reference\": \"Monthly salary deposit\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/accounts/{{OTHER_USER_BANK_ACC_ID}}/transactions",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"accounts",
+								"{{OTHER_USER_BANK_ACC_ID}}",
+								"transactions"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to deposit or withdraw money into another user's bank account",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"amount\": 1000,\r\n  \"currency\": \"GBP\",\r\n  \"type\": \"DEPOSIT\",\r\n  \"reference\": \"Monthly salary deposit\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{OTHER_USER_BANK_ACC_ID}}/transactions",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{OTHER_USER_BANK_ACC_ID}}",
+										"transactions"
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "19"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "STRICT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 04 Aug 2025 05:30:23 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"You don't have permission to create transactions for this account\",\n    \"timestamp\": \"2025-08-04T05:30:23.205763552\"\n}"
+						},
+						{
+							"name": "Scenario: User wants to deposit or withdraw money into another user's bank account",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"amount\": 1000,\r\n  \"currency\": \"GBP\",\r\n  \"type\": \"WITHDRAWAL\",\r\n  \"reference\": \"Monthly salary deposit\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{OTHER_USER_BANK_ACC_ID}}/transactions",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{OTHER_USER_BANK_ACC_ID}}",
+										"transactions"
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "19"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "STRICT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 04 Aug 2025 05:31:05 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"You don't have permission to create transactions for this account\",\n    \"timestamp\": \"2025-08-04T05:31:05.764008667\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Scenario: User wants to deposit or withdraw money into a non-existent bank account",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"amount\": 1000,\r\n  \"currency\": \"GBP\",\r\n  \"type\": \"WITHDRAWAL\",\r\n  \"reference\": \"Monthly salary deposit\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/accounts/{{NON_EXISTANT_BANK_ACC_ID}}/transactions",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"accounts",
+								"{{NON_EXISTANT_BANK_ACC_ID}}",
+								"transactions"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to deposit or withdraw money into a non-existent bank account",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"amount\": 1000,\r\n  \"currency\": \"GBP\",\r\n  \"type\": \"DEPOSIT\",\r\n  \"reference\": \"Monthly salary deposit\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{NON_EXISTANT_BANK_ACC_ID}}/transactions",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{NON_EXISTANT_BANK_ACC_ID}}",
+										"transactions"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "19"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "STRICT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 04 Aug 2025 05:32:30 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Bank account not found with account number: 1111111111\",\n    \"timestamp\": \"2025-08-04T05:32:30.840711713\"\n}"
+						},
+						{
+							"name": "Scenario: User wants to deposit or withdraw money into a non-existent bank account",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"amount\": 1000,\r\n  \"currency\": \"GBP\",\r\n  \"type\": \"WITHDRAWAL\",\r\n  \"reference\": \"Monthly salary deposit\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{NON_EXISTANT_BANK_ACC_ID}}/transactions",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{NON_EXISTANT_BANK_ACC_ID}}",
+										"transactions"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "19"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "STRICT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 04 Aug 2025 05:32:48 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Bank account not found with account number: 1111111111\",\n    \"timestamp\": \"2025-08-04T05:32:48.801557859\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Scenario: User wants to deposit or withdraw money without supplying all required data",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"type\": \"WITHDRAWAL\",\r\n  \"reference\": \"Monthly salary deposit\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/accounts/{{NON_EXISTANT_BANK_ACC_ID}}/transactions",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"accounts",
+								"{{NON_EXISTANT_BANK_ACC_ID}}",
+								"transactions"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to deposit or withdraw money without supplying all required data",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"amount\": 1000,\r\n  \"type\": \"WITHDRAWAL\",\r\n  \"reference\": \"Monthly salary deposit\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{NON_EXISTANT_BANK_ACC_ID}}/transactions",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{NON_EXISTANT_BANK_ACC_ID}}",
+										"transactions"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "19"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "STRICT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 04 Aug 2025 05:33:53 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Validation failed\",\n    \"details\": {\n        \"currency\": \"Currency is required\"\n    },\n    \"timestamp\": \"2025-08-04T05:33:53.304558365\"\n}"
+						},
+						{
+							"name": "Scenario: User wants to deposit or withdraw money without supplying all required data",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"amount\": 1000,\r\n  \"currency\": \"GBP\",\r\n  \"reference\": \"Monthly salary deposit\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{NON_EXISTANT_BANK_ACC_ID}}/transactions",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{NON_EXISTANT_BANK_ACC_ID}}",
+										"transactions"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "18"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "STRICT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 04 Aug 2025 05:34:17 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Validation failed\",\n    \"details\": {\n        \"type\": \"Transaction type is required\"\n    },\n    \"timestamp\": \"2025-08-04T05:34:17.912998619\"\n}"
+						},
+						{
+							"name": "Scenario: User wants to deposit or withdraw money without supplying all required data",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"type\": \"WITHDRAWAL\",\r\n  \"reference\": \"Monthly salary deposit\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{NON_EXISTANT_BANK_ACC_ID}}/transactions",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{NON_EXISTANT_BANK_ACC_ID}}",
+										"transactions"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "17"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "STRICT"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 04 Aug 2025 05:34:37 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Validation failed\",\n    \"details\": {\n        \"amount\": \"Amount is required\",\n        \"currency\": \"Currency is required\"\n    },\n    \"timestamp\": \"2025-08-04T05:34:37.90697163\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "List Transactions",
+			"item": [
+				{
+					"name": "Scenario: User wants to view all transactions on their bank account",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Get first Transaction ID\", function () {\r",
+									"    pm.response.to.have.status(200); // status code is 201\r",
+									"    var jsonData = pm.response.json();\r",
+									"    if (jsonData.transactions && jsonData.transactions.length > 0) {\r",
+									"        pm.collectionVariables.set(\"USER_TRANS_ID\", jsonData.transactions[0].id);\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/accounts/{{USER_BANK_ACC_ID}}/transactions",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"accounts",
+								"{{USER_BANK_ACC_ID}}",
+								"transactions"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to view all transactions on their bank account",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{USER_BANK_ACC_ID}}/transactions",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{USER_BANK_ACC_ID}}",
+										"transactions"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "199"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "RELAXED"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 04 Aug 2025 05:36:35 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"transactions\": [\n        {\n            \"id\": \"tan-89855845642137824\",\n            \"amount\": 1000,\n            \"currency\": \"GBP\",\n            \"type\": \"WITHDRAWAL\",\n            \"reference\": \"Monthly salary deposit\",\n            \"userId\": \"usr-d98b6005cf1442eeb51c6b1102f21dac\",\n            \"createdTimestamp\": \"2025-08-04T05:26:54.497266\"\n        },\n        {\n            \"id\": \"tan-6570290378544997118\",\n            \"amount\": 1000,\n            \"currency\": \"GBP\",\n            \"type\": \"DEPOSIT\",\n            \"reference\": \"Monthly salary deposit\",\n            \"userId\": \"usr-d98b6005cf1442eeb51c6b1102f21dac\",\n            \"createdTimestamp\": \"2025-08-04T05:22:02.445984\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Scenario: User wants to view all transactions on another user's bank account",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/accounts/{{OTHER_USER_BANK_ACC_ID}}/transactions",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"accounts",
+								"{{OTHER_USER_BANK_ACC_ID}}",
+								"transactions"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to view all transactions on another user's bank account",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{OTHER_USER_BANK_ACC_ID}}/transactions",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{OTHER_USER_BANK_ACC_ID}}",
+										"transactions"
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "199"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "RELAXED"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 04 Aug 2025 05:38:38 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"You don't have permission to view transactions for this account\",\n    \"timestamp\": \"2025-08-04T05:38:38.802064153\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Scenario: User wants to view all transactions on a non-existent bank account",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/accounts/{{NON_EXISTANT_BANK_ACC_ID}}/transactions",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"accounts",
+								"{{NON_EXISTANT_BANK_ACC_ID}}",
+								"transactions"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to view all transactions on a non-existent bank account",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{NON_EXISTANT_BANK_ACC_ID}}/transactions",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{NON_EXISTANT_BANK_ACC_ID}}",
+										"transactions"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "199"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "RELAXED"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 04 Aug 2025 05:39:32 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Bank account not found with account number: 1111111111\",\n    \"timestamp\": \"2025-08-04T05:39:32.826056932\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Fetch a Transaction",
+			"item": [
+				{
+					"name": "Scenario: User wants to fetch a transaction on their bank account",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/accounts/{{USER_BANK_ACC_ID}}/transactions/{{USER_TRANS_ID}}",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"accounts",
+								"{{USER_BANK_ACC_ID}}",
+								"transactions",
+								"{{USER_TRANS_ID}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to fetch a transaction on their bank account",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{USER_BANK_ACC_ID}}/transactions/{{USER_TRANS_ID}}",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{USER_BANK_ACC_ID}}",
+										"transactions",
+										"{{USER_TRANS_ID}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "199"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "RELAXED"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 04 Aug 2025 05:45:38 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"tan-89855845642137824\",\n    \"amount\": 1000,\n    \"currency\": \"GBP\",\n    \"type\": \"WITHDRAWAL\",\n    \"reference\": \"Monthly salary deposit\",\n    \"userId\": \"usr-d98b6005cf1442eeb51c6b1102f21dac\",\n    \"createdTimestamp\": \"2025-08-04T05:26:54.497266\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Scenario: User wants to fetch a transaction on another user's bank account",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/accounts/{{OTHER_USER_BANK_ACC_ID}}/transactions/{{USER_TRANS_ID}}",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"accounts",
+								"{{OTHER_USER_BANK_ACC_ID}}",
+								"transactions",
+								"{{USER_TRANS_ID}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to fetch a transaction on another user's bank account",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{OTHER_USER_BANK_ACC_ID}}/transactions/{{USER_TRANS_ID}}",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{OTHER_USER_BANK_ACC_ID}}",
+										"transactions",
+										"{{USER_TRANS_ID}}"
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "198"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "RELAXED"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 04 Aug 2025 05:50:04 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"You don't have permission to view transactions for this account\",\n    \"timestamp\": \"2025-08-04T05:50:04.927276274\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Scenario: User wants to fetch a transaction on a non-existent bank account",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/accounts/{{NON_EXISTANT_BANK_ACC_ID}}/transactions/{{USER_TRANS_ID}}",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"accounts",
+								"{{NON_EXISTANT_BANK_ACC_ID}}",
+								"transactions",
+								"{{USER_TRANS_ID}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to fetch a transaction on a non-existent bank account",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{NON_EXISTANT_BANK_ACC_ID}}/transactions/{{USER_TRANS_ID}}",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{NON_EXISTANT_BANK_ACC_ID}}",
+										"transactions",
+										"{{USER_TRANS_ID}}"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "199"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "RELAXED"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 04 Aug 2025 05:51:19 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Bank account not found with account number: 1111111111\",\n    \"timestamp\": \"2025-08-04T05:51:19.060967046\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Scenario: User wants to fetch a transactions on a non-existent transaction ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/accounts/{{USER_BANK_ACC_ID}}/transactions/{{NON_EXISTANT_TRANS_ID}}",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"accounts",
+								"{{USER_BANK_ACC_ID}}",
+								"transactions",
+								"{{NON_EXISTANT_TRANS_ID}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to fetch a transactions on a non-existent transaction ID",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{USER_BANK_ACC_ID}}/transactions/{{NON_EXISTANT_TRANS_ID}}",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{USER_BANK_ACC_ID}}",
+										"transactions",
+										"{{NON_EXISTANT_TRANS_ID}}"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "49"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "RELAXED"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 04 Aug 2025 05:57:31 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Transaction not found with ID: tan-00000 for account: 01528234\",\n    \"timestamp\": \"2025-08-04T05:57:31.012163905\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Scenario: User wants to fetch a transaction against the wrong bank account",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/accounts/{{USER_SECOND_BANK_ACC_ID}}/transactions/{{USER_TRANS_ID}}",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"accounts",
+								"{{USER_SECOND_BANK_ACC_ID}}",
+								"transactions",
+								"{{USER_TRANS_ID}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Scenario: User wants to fetch a transaction against the wrong bank account",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-api-url}}/api/v1/accounts/{{USER_SECOND_BANK_ACC_ID}}/transactions/{{USER_TRANS_ID}}",
+									"host": [
+										"{{base-api-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"accounts",
+										"{{USER_SECOND_BANK_ACC_ID}}",
+										"transactions",
+										"{{USER_TRANS_ID}}"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "199"
+								},
+								{
+									"key": "X-RateLimit-Type",
+									"value": "RELAXED"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-XSS-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Security-Policy",
+									"value": "frame-ancestors 'self'"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 04 Aug 2025 06:02:11 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Transaction not found with ID: tan-89855845642137824 for account: 01366627\",\n    \"timestamp\": \"2025-08-04T06:02:11.866256746\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Additional Scenario - No Auth: Get all users",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							" pm.response.to.have.status(200);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base-api-url}}/api/v1/users",
+					"host": [
+						"{{base-api-url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Additional Scenario - No Auth: Get all users",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/users",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Vary",
+							"value": "Origin"
+						},
+						{
+							"key": "Vary",
+							"value": "Access-Control-Request-Method"
+						},
+						{
+							"key": "Vary",
+							"value": "Access-Control-Request-Headers"
+						},
+						{
+							"key": "X-RateLimit-Remaining",
+							"value": "48"
+						},
+						{
+							"key": "X-RateLimit-Type",
+							"value": "RELAXED"
+						},
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "X-XSS-Protection",
+							"value": "0"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate"
+						},
+						{
+							"key": "Pragma",
+							"value": "no-cache"
+						},
+						{
+							"key": "Expires",
+							"value": "0"
+						},
+						{
+							"key": "X-Frame-Options",
+							"value": "DENY"
+						},
+						{
+							"key": "Content-Security-Policy",
+							"value": "frame-ancestors 'self'"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Sun, 03 Aug 2025 20:28:17 GMT"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=60"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"body": "[\n    {\n        \"id\": \"usr-f87feec95a8a4b42a6212ba75137982a\",\n        \"name\": \"Sam\",\n        \"address\": {\n            \"line1\": \"123 Street\",\n            \"line2\": null,\n            \"line3\": null,\n            \"town\": \"Manchester\",\n            \"county\": \"Greater Manchester\",\n            \"postcode\": \"AB1 2CD\"\n        },\n        \"phoneNumber\": \"+44123456789\",\n        \"email\": \"test@example.com\",\n        \"createdTimestamp\": \"2025-08-02T17:11:13.228285\",\n        \"updatedTimestamp\": \"2025-08-02T17:11:13.228285\"\n    },\n    {\n        \"id\": \"usr-731d5ab0a99542cf9ca7ff5ec0b0ca0b\",\n        \"name\": \"Sam\",\n        \"address\": {\n            \"line1\": \"123 Street\",\n            \"line2\": null,\n            \"line3\": null,\n            \"town\": \"Manchester\",\n            \"county\": \"Greater Manchester\",\n            \"postcode\": \"AB1 2CD\"\n        },\n        \"phoneNumber\": \"+44123456789\",\n        \"email\": \"test2@example.com\",\n        \"createdTimestamp\": \"2025-08-02T17:20:53.5882\",\n        \"updatedTimestamp\": \"2025-08-02T17:20:53.5882\"\n    },\n    {\n        \"id\": \"usr-e9d2011ce87f4404aebb858aa6e51141\",\n        \"name\": \"Sam\",\n        \"address\": {\n            \"line1\": \"123 Street\",\n            \"line2\": null,\n            \"line3\": null,\n            \"town\": \"Manchester\",\n            \"county\": \"Greater Manchester\",\n            \"postcode\": \"AB1 2CD\"\n        },\n        \"phoneNumber\": \"+44123456789\",\n        \"email\": \"test3@example.com\",\n        \"createdTimestamp\": \"2025-08-02T17:22:18.819357\",\n        \"updatedTimestamp\": \"2025-08-02T17:22:18.819357\"\n    },\n    {\n        \"id\": \"usr-5ee8a8d69f1f4db4bde55eb3047885f9\",\n        \"name\": \"Sam\",\n        \"address\": {\n            \"line1\": \"123 Street\",\n            \"line2\": null,\n            \"line3\": null,\n            \"town\": \"Manchester\",\n            \"county\": \"Greater Manchester\",\n            \"postcode\": \"AB1 2CD\"\n        },\n        \"phoneNumber\": \"+44123456789\",\n        \"email\": \"test4@example.com\",\n        \"createdTimestamp\": \"2025-08-02T17:22:45.073239\",\n        \"updatedTimestamp\": \"2025-08-02T17:22:45.073239\"\n    },\n    {\n        \"id\": \"usr-8932b1abc4fc43238cbef2e8f812808a\",\n        \"name\": \"OAuth Test User\",\n        \"address\": {\n            \"line1\": \"456 OAuth Street\",\n            \"line2\": null,\n            \"line3\": null,\n            \"town\": \"London\",\n            \"county\": \"Greater London\",\n            \"postcode\": \"SW1A 1AA\"\n        },\n        \"phoneNumber\": \"+1987654321\",\n        \"email\": \"oauth.test@example.com\",\n        \"createdTimestamp\": \"2025-08-02T20:11:06.888168\",\n        \"updatedTimestamp\": \"2025-08-02T20:11:06.888168\"\n    },\n    {\n        \"id\": \"usr-8f31ff04a148408ca226621a783ca1ca\",\n        \"name\": \"John Doe\",\n        \"address\": {\n            \"line1\": \"123 Main Street\",\n            \"line2\": \"Apartment 4B\",\n            \"line3\": \"Building Complex\",\n            \"town\": \"London\",\n            \"county\": \"Greater London\",\n            \"postcode\": \"SW1A 1AA\"\n        },\n        \"phoneNumber\": \"+1234567890\",\n        \"email\": \"john.doe@example.com\",\n        \"createdTimestamp\": \"2025-08-02T20:20:32.79816\",\n        \"updatedTimestamp\": \"2025-08-02T20:20:32.79816\"\n    },\n    {\n        \"id\": \"usr-abfa6f817f9a45089395c953d9042729\",\n        \"name\": \"Samuel\",\n        \"address\": {\n            \"line1\": \"123 Street\",\n            \"line2\": null,\n            \"line3\": null,\n            \"town\": \"Manchester\",\n            \"county\": \"Greater Manchester\",\n            \"postcode\": \"AB1 2CD\"\n        },\n        \"phoneNumber\": \"+44123456789\",\n        \"email\": \"test5@example.com\",\n        \"createdTimestamp\": \"2025-08-03T13:42:48.715399\",\n        \"updatedTimestamp\": \"2025-08-03T14:15:01.082068\"\n    },\n    {\n        \"id\": \"usr-d98b6005cf1442eeb51c6b1102f21dac\",\n        \"name\": \"Harry\",\n        \"address\": {\n            \"line1\": \"123 Street\",\n            \"line2\": null,\n            \"line3\": null,\n            \"town\": \"London\",\n            \"county\": \"Greater London\",\n            \"postcode\": \"AB1 2CD\"\n        },\n        \"phoneNumber\": \"+449898989898\",\n        \"email\": \"harry@example.com\",\n        \"createdTimestamp\": \"2025-08-03T20:26:31.003165\",\n        \"updatedTimestamp\": \"2025-08-03T20:26:31.003165\"\n    }\n]"
+				}
+			]
+		},
+		{
+			"name": "Additional Scenario: User to fetch their details without their userId",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Bad Request\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base-api-url}}/api/v1/users/me",
+					"host": [
+						"{{base-api-url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users",
+						"me"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Additional Scenario: User to fetch their details without their userId",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-api-url}}/api/v1/users/me",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"me"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Vary",
+							"value": "Origin"
+						},
+						{
+							"key": "Vary",
+							"value": "Access-Control-Request-Method"
+						},
+						{
+							"key": "Vary",
+							"value": "Access-Control-Request-Headers"
+						},
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "X-XSS-Protection",
+							"value": "0"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate"
+						},
+						{
+							"key": "Pragma",
+							"value": "no-cache"
+						},
+						{
+							"key": "Expires",
+							"value": "0"
+						},
+						{
+							"key": "X-Frame-Options",
+							"value": "DENY"
+						},
+						{
+							"key": "Content-Security-Policy",
+							"value": "frame-ancestors 'self'"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Sun, 03 Aug 2025 13:49:24 GMT"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=60"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"id\": \"usr-abfa6f817f9a45089395c953d9042729\",\n    \"name\": \"Sam\",\n    \"address\": {\n        \"line1\": \"123 Street\",\n        \"line2\": null,\n        \"line3\": null,\n        \"town\": \"Manchester\",\n        \"county\": \"Greater Manchester\",\n        \"postcode\": \"AB1 2CD\"\n    },\n    \"phoneNumber\": \"+44123456789\",\n    \"email\": \"test5@example.com\",\n    \"createdTimestamp\": \"2025-08-03T13:42:48.715399\",\n    \"updatedTimestamp\": \"2025-08-03T13:42:48.715399\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Actuator - Health",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Health is UP\", function () {\r",
+							"    pm.response.to.have.status(200); // status code is 200\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.status).to.eql(\"UP\"); // health status is UP\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base-api-url}}/actuator/health",
+					"host": [
+						"{{base-api-url}}"
+					],
+					"path": [
+						"actuator",
+						"health"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Actuator - Health",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-api-url}}/actuator/health",
+							"host": [
+								"{{base-api-url}}"
+							],
+							"path": [
+								"actuator",
+								"health"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Vary",
+							"value": "Origin"
+						},
+						{
+							"key": "Vary",
+							"value": "Access-Control-Request-Method"
+						},
+						{
+							"key": "Vary",
+							"value": "Access-Control-Request-Headers"
+						},
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "X-XSS-Protection",
+							"value": "0"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate"
+						},
+						{
+							"key": "Pragma",
+							"value": "no-cache"
+						},
+						{
+							"key": "Expires",
+							"value": "0"
+						},
+						{
+							"key": "X-Frame-Options",
+							"value": "DENY"
+						},
+						{
+							"key": "Content-Security-Policy",
+							"value": "frame-ancestors 'self'"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/vnd.spring-boot.actuator.v3+json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 02 Aug 2025 17:20:15 GMT"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=60"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"status\": \"UP\",\n    \"components\": {\n        \"db\": {\n            \"status\": \"UP\",\n            \"details\": {\n                \"database\": \"PostgreSQL\",\n                \"validationQuery\": \"isValid()\"\n            }\n        },\n        \"diskSpace\": {\n            \"status\": \"UP\",\n            \"details\": {\n                \"total\": 1002337988608,\n                \"free\": 445383806976,\n                \"threshold\": 10485760,\n                \"path\": \"/workspaces/eagle-bank-api-java/.\",\n                \"exists\": true\n            }\n        },\n        \"ping\": {\n            \"status\": \"UP\"\n        }\n    }\n}"
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "oauth2",
+		"oauth2": [
+			{
+				"key": "tokenName",
+				"value": "EAGLE_BANK_API_TOKEN_HARRY",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "harry",
+				"type": "string"
+			},
+			{
+				"key": "client_authentication",
+				"value": "header",
+				"type": "string"
+			},
+			{
+				"key": "password",
+				"value": "Test1234",
+				"type": "string"
+			},
+			{
+				"key": "clientId",
+				"value": "eagle-bank-api",
+				"type": "string"
+			},
+			{
+				"key": "accessTokenUrl",
+				"value": "{{access_token_url}}",
+				"type": "string"
+			},
+			{
+				"key": "grant_type",
+				"value": "password_credentials",
+				"type": "string"
+			},
+			{
+				"key": "addTokenTo",
+				"value": "header",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "access_token_url",
+			"value": "http://eagle-bank-keycloak:8180/realms/eagle-bank/protocol/openid-connect/token",
+			"type": "string"
+		},
+		{
+			"key": "base-api-url",
+			"value": "http://localhost:8080/eagle-bank",
+			"type": "string"
+		},
+		{
+			"key": "USER_ID",
+			"value": "usr-d98b6005cf1442eeb51c6b1102f21dac",
+			"type": "string"
+		},
+		{
+			"key": "NON_EXISTANT_USER_ID",
+			"value": "usr-111111111111111111111111111111111",
+			"type": "string"
+		},
+		{
+			"key": "JOHN_DOE_USER_ID",
+			"value": "usr-8f31ff04a148408ca226621a783ca1ca",
+			"type": "string"
+		},
+		{
+			"key": "USER_BANK_ACC_ID",
+			"value": "01528234"
+		},
+		{
+			"key": "OTHER_USER_BANK_ACC_ID",
+			"value": "01645688",
+			"type": "string"
+		},
+		{
+			"key": "NON_EXISTANT_BANK_ACC_ID",
+			"value": "1111111111",
+			"type": "string"
+		},
+		{
+			"key": "USER_TRANS_ID",
+			"value": "tan-89855845642137824"
+		},
+		{
+			"key": "NON_EXISTANT_TRANS_ID",
+			"value": "tan-00000",
+			"type": "string"
+		},
+		{
+			"key": "USER_SECOND_BANK_ACC_ID",
+			"value": "01366627"
+		}
+	]
+}

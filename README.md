@@ -146,6 +146,12 @@ curl -X POST "http://eagle-bank-keycloak:8180/realms/eagle-bank/protocol/openid-
   -d "grant_type=password&client_id=eagle-bank-api&username=testuser&password=Test1234"
 ```
 
+**Postman Collection**
+Link for Postman collection is 
+https://www.postman.com/speeding-equinox-655623/workspace/eagle-bank/collection/865674-2030b50a-9f0a-4936-bded-073ac52ebde4
+
+Postman collection is also committed to git repository under docs/postman
+
 ## API Documentation & Testing
 
 ### Swagger UI (Interactive API Documentation)
