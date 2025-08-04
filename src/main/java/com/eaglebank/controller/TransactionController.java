@@ -80,17 +80,27 @@ public class TransactionController extends BaseController {
         log.info("Creating transaction for account: {} with type: {} and amount: {}", 
                 accountNumber, request.getType(), request.getAmount());
         
-        // Extract email from JWT token and get the user
-        String authenticatedEmail = getAuthenticatedEmail(authentication);
-        if (authenticatedEmail == null) {
-            throw new CustomAccessDeniedException("No authenticated email found - access denied");
+        try {
+            // Extract email from JWT token and get the user
+            String authenticatedEmail = getAuthenticatedEmail(authentication);
+            if (authenticatedEmail == null) {
+                log.warn("Transaction creation denied - no authenticated email found for account: {}", accountNumber);
+                throw new CustomAccessDeniedException("No authenticated email found - access denied");
+            }
+            
+            // Get the user by email to get their ID
+            UserResponse user = userService.getUserByEmail(authenticatedEmail);
+            log.debug("User {} attempting to create transaction for account: {}", user.getId(), accountNumber);
+            
+            TransactionResponse response = transactionService.createTransaction(accountNumber, request, user.getId());
+            log.info("Transaction created successfully - id: {}, account: {}, user: {}, amount: {}", 
+                    response.getId(), accountNumber, user.getId(), request.getAmount());
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
+            log.error("Transaction creation failed - account: {}, type: {}, amount: {}, error: {}", 
+                    accountNumber, request.getType(), request.getAmount(), e.getMessage(), e);
+            throw e;
         }
-        
-        // Get the user by email to get their ID
-        UserResponse user = userService.getUserByEmail(authenticatedEmail);
-        
-        TransactionResponse response = transactionService.createTransaction(accountNumber, request, user.getId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
