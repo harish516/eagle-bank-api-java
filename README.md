@@ -57,6 +57,7 @@ eagle-bank-api-java/
 ### Using Dev Container (Recommended)
 
 1. **Clone the repository**
+   Example git repository URL - https://github.com/harish516/eagle-bank-api-java.git
    ```bash
    git clone <repository-url>
    cd eagle-bank-api-java
@@ -73,7 +74,7 @@ eagle-bank-api-java/
    ```
 
 4. **Add the dev container to the same docker network where postgres and keycloak are running**
-   **Example - sudo docker network connect eagle-bank-api-java_eagle-bank-network clever_albattani**
+   Example - sudo docker network connect eagle-bank-api-java_eagle-bank-network clever_albattani
    ```bash
    sudo docker network connect <docker-network> <vs-code-dev-container-name>
    ```
@@ -127,8 +128,10 @@ eagle-bank-api-java/
 
 To get an authentication token using Postman:
 
+The host should be eagle-bank-keycloak to match with valid iss claim. So, map the host eagle-bank-keycloak to 127.0.0.1 in hosts file.
+
 1. **Method**: POST
-2. **URL**: `http://localhost:8180/realms/eagle-bank/protocol/openid-connect/token`
+2. **URL**: `http://eagle-bank-keycloak:8180/realms/eagle-bank/protocol/openid-connect/token`
 3. **Headers**: `Content-Type: application/x-www-form-urlencoded`
 4. **Body** (form-data):
    - `grant_type`: `password`
@@ -138,7 +141,7 @@ To get an authentication token using Postman:
 
 **Example cURL command:**
 ```bash
-curl -X POST "http://localhost:8180/realms/eagle-bank/protocol/openid-connect/token" \
+curl -X POST "http://eagle-bank-keycloak:8180/realms/eagle-bank/protocol/openid-connect/token" \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -d "grant_type=password&client_id=eagle-bank-api&username=testuser&password=Test1234"
 ```
@@ -166,8 +169,9 @@ The Eagle Bank API includes **Swagger UI** for interactive API documentation and
 2. Open http://localhost:8080/eagle-bank/swagger-ui.html in your browser
 3. Create a test user in Keycloak (see detailed guide below)
 4. Use `POST /api/v1/users` to create a test user (no auth required)
-5. Click **"Authorize"** in Swagger UI → **"oauth2"** → enter username/password
-6. Test protected endpoints like `GET /api/v1/users/me`
+5. Use `GET /api/v1/users` to view all the users (no auth required - it provided for testing purpose)
+6. Click **"Authorize"** in Swagger UI → **"oauth2"** → enter username/password
+7. Test protected endpoints like `GET /api/v1/users/me`
 
 📖 **Detailed Guide**: [docs/SWAGGER_GUIDE.md](docs/SWAGGER_GUIDE.md)
 
