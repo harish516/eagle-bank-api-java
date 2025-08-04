@@ -1,5 +1,6 @@
 package com.eaglebank.controller;
 
+import com.eaglebank.util.LoggingUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -28,14 +29,14 @@ public abstract class BaseController {
             // Primary: Get the email claim from the JWT token
             String email = jwt.getClaimAsString("email");
             if (email != null && !email.trim().isEmpty()) {
-                log.debug("Found email in JWT: {}", email);
+                log.debug("Found email in JWT: {}", LoggingUtils.maskEmail(email));
                 return email;
             }
             
             // Fallback: if no email claim, try preferred_username if it looks like an email
             String username = jwt.getClaimAsString("preferred_username");
             if (username != null && username.contains("@")) {
-                log.debug("Using preferred_username as email: {}", username);
+                log.debug("Using preferred_username as email: {}", LoggingUtils.maskEmail(username));
                 return username;
             }
             
@@ -45,7 +46,7 @@ public abstract class BaseController {
         // Final fallback to the principal name if it looks like an email
         String principalName = authentication.getName();
         if (principalName != null && principalName.contains("@")) {
-            log.debug("Using principal name as email: {}", principalName);
+            log.debug("Using principal name as email: {}", LoggingUtils.maskEmail(principalName));
             return principalName;
         }
         

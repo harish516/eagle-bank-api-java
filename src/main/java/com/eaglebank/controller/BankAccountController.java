@@ -10,6 +10,7 @@ import com.eaglebank.dto.UserResponse;
 import com.eaglebank.exception.CustomAccessDeniedException;
 import com.eaglebank.service.interfaces.BankAccountServiceInterface;
 import com.eaglebank.service.interfaces.UserServiceInterface;
+import com.eaglebank.util.LoggingUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -136,7 +137,7 @@ public class BankAccountController extends BaseController {
         
         if (!isOwner) {
             log.warn("User with email {} attempted to access account number: {} which they don't own", 
-                authenticatedEmail, accountNumber);
+                LoggingUtils.maskEmail(authenticatedEmail), accountNumber);
             throw new IllegalStateException("Forbidden - User can only access their own accounts");
         }
         
@@ -249,7 +250,7 @@ public class BankAccountController extends BaseController {
         
         if (!isOwner) {
             log.warn("User with email {} attempted to update account number: {} which they don't own", 
-                authenticatedEmail, accountNumber);
+                LoggingUtils.maskEmail(authenticatedEmail), accountNumber);
             throw new IllegalStateException("Forbidden - User can only update their own accounts");
         }
         
@@ -315,7 +316,7 @@ public class BankAccountController extends BaseController {
         
         if (!isOwner) {
             log.warn("User with email {} attempted to delete account number: {} which they don't own", 
-                authenticatedEmail, accountNumber);
+                LoggingUtils.maskEmail(authenticatedEmail), accountNumber);
             throw new IllegalStateException("Forbidden - User can only delete their own accounts");
         }
         

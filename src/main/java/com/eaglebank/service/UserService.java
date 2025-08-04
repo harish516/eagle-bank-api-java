@@ -9,6 +9,7 @@ import com.eaglebank.dto.UserResponse;
 import com.eaglebank.exception.UserNotFoundException;
 import com.eaglebank.repository.BankAccountRepository;
 import com.eaglebank.repository.UserRepository;
+import com.eaglebank.util.LoggingUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,29 +31,44 @@ public class UserService implements UserServiceInterface {
     private final BankAccountRepository bankAccountRepository;
 
     public UserResponse createUser(CreateUserRequest request) {
-        log.info("Creating user with email: {}", request.getEmail());
+        log.info("Creating user - email: {}, name: {}", 
+                LoggingUtils.safeEmailId(request.getEmail()), request.getName());
+        long startTime = System.currentTimeMillis();
         
-        // Check if user with this email already exists
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("User with email already exists: " + request.getEmail());
-        }
-        
-        User user = User.builder()
-                .id("usr-" + UUID.randomUUID().toString().replace("-", ""))
-                .name(request.getName())
-                .address(request.getAddress())
-                .phoneNumber(request.getPhoneNumber())
-                .email(request.getEmail())
-                .createdTimestamp(LocalDateTime.now())
-                .updatedTimestamp(LocalDateTime.now())
-                .build();
+        try {
+            // Check if user with this email already exists
+            if (userRepository.existsByEmail(request.getEmail())) {
+                log.warn("User creation failed - email already exists: {}", 
+                        LoggingUtils.maskEmail(request.getEmail()));
+                throw new IllegalArgumentException("User with email already exists: " + request.getEmail());
+            }
+            
+            User user = User.builder()
+                    .id("usr-" + UUID.randomUUID().toString().replace("-", ""))
+                    .name(request.getName())
+                    .address(request.getAddress())
+                    .phoneNumber(request.getPhoneNumber())
+                    .email(request.getEmail())
+                    .createdTimestamp(LocalDateTime.now())
+                    .updatedTimestamp(LocalDateTime.now())
+                    .build();
 
-        User savedUser = userRepository.save(user);
-        return mapToUserResponse(savedUser);
+            User savedUser = userRepository.save(user);
+            long duration = System.currentTimeMillis() - startTime;
+            log.info("User created successfully - id: {}, email: {}, duration: {}ms", 
+                    LoggingUtils.maskUserId(savedUser.getId()), 
+                    LoggingUtils.maskEmail(savedUser.getEmail()), duration);
+            return mapToUserResponse(savedUser);
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            log.error("User creation failed - email: {}, duration: {}ms, error: {}", 
+                    LoggingUtils.maskEmail(request.getEmail()), duration, e.getMessage(), e);
+            throw e;
+        }
     }
 
     public UserResponse getUserById(String userId) {
-        log.info("Getting user by ID: {}", userId);
+        log.info("Getting user by ID: {}", LoggingUtils.maskUserId(userId));
         
         // Validate user ID
         if (userId == null || userId.trim().isEmpty()) {
@@ -72,7 +88,7 @@ public class UserService implements UserServiceInterface {
     }
 
     public UserResponse updateUser(String userId, UpdateUserRequest request) {
-        log.info("Updating user with ID: {}", userId);
+        log.info("Updating user with ID: {}", LoggingUtils.maskUserId(userId));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
 
@@ -101,7 +117,7 @@ public class UserService implements UserServiceInterface {
     }
 
     public void deleteUser(String userId) {
-        log.info("Deleting user with ID: {}", userId);
+        log.info("Deleting user with ID: {}", LoggingUtils.maskUserId(userId));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
         
@@ -127,7 +143,7 @@ public class UserService implements UserServiceInterface {
     }
 
     public UserResponse getUserByEmail(String email) {
-        log.info("Getting user by email: {}", email);
+        log.info("Getting user by email: {}", LoggingUtils.maskEmail(email));
         
         // Validate email input
         if (email == null || email.trim().isEmpty()) {

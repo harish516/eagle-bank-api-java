@@ -7,6 +7,7 @@ import com.eaglebank.dto.UpdateUserRequest;
 import com.eaglebank.dto.UserResponse;
 import com.eaglebank.exception.CustomAccessDeniedException;
 import com.eaglebank.service.interfaces.UserServiceInterface;
+import com.eaglebank.util.LoggingUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -56,7 +57,7 @@ public class UserController extends BaseController {
                         value = "{\"message\": \"An unexpected error occurred\", \"timestamp\": \"2024-01-15T10:30:00\"}")))
     })
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
-        log.info("Creating user with email: {}", request.getEmail());
+        log.info("Creating user with email: {}", LoggingUtils.safeEmailId(request.getEmail()));
         UserResponse response = userService.createUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -105,7 +106,8 @@ public class UserController extends BaseController {
         // Check if the authenticated user is requesting their own data by comparing emails
         if (!authenticatedEmail.equals(requestedUser.getEmail())) {
             log.warn("User with email {} attempted to access data for user ID: {} with email: {}", 
-                authenticatedEmail, userId, requestedUser.getEmail());
+                LoggingUtils.maskEmail(authenticatedEmail), LoggingUtils.maskUserId(userId), 
+                LoggingUtils.maskEmail(requestedUser.getEmail()));
             throw new IllegalStateException("Forbidden - User can only access their own data");
         }
         
@@ -158,7 +160,8 @@ public class UserController extends BaseController {
         UserResponse existingUser = userService.getUserById(userId);
         if (!authenticatedEmail.equals(existingUser.getEmail())) {
             log.warn("User with email {} attempted to update data for user ID: {} with email: {}", 
-                authenticatedEmail, userId, existingUser.getEmail());
+                LoggingUtils.maskEmail(authenticatedEmail), LoggingUtils.maskUserId(userId), 
+                LoggingUtils.maskEmail(existingUser.getEmail()));
             throw new IllegalStateException("Forbidden - User can only access their own data");
         }
         
@@ -213,7 +216,8 @@ public class UserController extends BaseController {
         UserResponse existingUser = userService.getUserById(userId);
         if (!authenticatedEmail.equals(existingUser.getEmail())) {
             log.warn("User with email {} attempted to delete data for user ID: {} with email: {}", 
-                authenticatedEmail, userId, existingUser.getEmail());
+                LoggingUtils.maskEmail(authenticatedEmail), LoggingUtils.maskUserId(userId), 
+                LoggingUtils.maskEmail(existingUser.getEmail()));
             throw new IllegalStateException("Forbidden - User can only access their own data");
         }
         
