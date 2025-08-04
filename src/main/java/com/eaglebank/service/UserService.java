@@ -106,9 +106,6 @@ public class UserService implements UserServiceInterface {
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
         
         // Check if user has associated accounts
-        // For now, we'll simulate this check - in a real implementation this would
-        // check the BankAccount repository for accounts associated with this user
-        // Since the test expects this to throw an exception, we'll implement basic logic
         if (hasAssociatedBankAccounts(userId)) {
             throw new IllegalStateException("Cannot delete user with associated bank accounts");
         }
