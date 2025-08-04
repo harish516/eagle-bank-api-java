@@ -422,6 +422,120 @@ class GlobalExceptionHandlerTest {
     }
 
     @Nested
+    @DisplayName("TransactionNotFoundException Handler Tests")
+    class TransactionNotFoundExceptionHandlerTests {
+
+        @Test
+        @DisplayName("Should handle TransactionNotFoundException and return NOT_FOUND")
+        void shouldHandleTransactionNotFoundExceptionAndReturnNotFound() {
+            // Given
+            String errorMessage = "Transaction not found with ID: tan-abc123";
+            TransactionNotFoundException exception = new TransactionNotFoundException(errorMessage);
+
+            // When
+            ResponseEntity<ErrorResponse> response = globalExceptionHandler
+                    .handleTransactionNotFoundException(exception);
+
+            // Then
+            assertThat(response).isNotNull();
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+            
+            ErrorResponse responseBody = response.getBody();
+            assertThat(responseBody).isNotNull();
+            assertThat(responseBody.getMessage()).isEqualTo(errorMessage);
+            assertThat(responseBody.getTimestamp()).isNotNull();
+            assertThat(responseBody.getTimestamp()).isAfterOrEqualTo(testStartTime);
+        }
+
+        @Test
+        @DisplayName("Should handle TransactionNotFoundException with formatted message")
+        void shouldHandleTransactionNotFoundExceptionWithFormattedMessage() {
+            // Given
+            String transactionId = "tan-xyz789";
+            String errorMessage = String.format("Transaction not found with ID: %s", transactionId);
+            TransactionNotFoundException exception = new TransactionNotFoundException(errorMessage);
+
+            // When
+            ResponseEntity<ErrorResponse> response = globalExceptionHandler
+                    .handleTransactionNotFoundException(exception);
+
+            // Then
+            assertThat(response).isNotNull();
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+            
+            ErrorResponse responseBody = response.getBody();
+            assertThat(responseBody).isNotNull();
+            assertThat(responseBody.getMessage()).isEqualTo(errorMessage);
+            assertThat(responseBody.getTimestamp()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("Should handle TransactionNotFoundException with cause")
+        void shouldHandleTransactionNotFoundExceptionWithCause() {
+            // Given
+            String errorMessage = "Transaction not found with ID: tan-failed123";
+            RuntimeException cause = new RuntimeException("Database connection failed");
+            TransactionNotFoundException exception = new TransactionNotFoundException(errorMessage, cause);
+
+            // When
+            ResponseEntity<ErrorResponse> response = globalExceptionHandler
+                    .handleTransactionNotFoundException(exception);
+
+            // Then
+            assertThat(response).isNotNull();
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+            
+            ErrorResponse responseBody = response.getBody();
+            assertThat(responseBody).isNotNull();
+            assertThat(responseBody.getMessage()).isEqualTo(errorMessage);
+            assertThat(responseBody.getTimestamp()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("Should handle TransactionNotFoundException with null message")
+        void shouldHandleTransactionNotFoundExceptionWithNullMessage() {
+            // Given
+            TransactionNotFoundException exception = new TransactionNotFoundException(null);
+
+            // When
+            ResponseEntity<ErrorResponse> response = globalExceptionHandler
+                    .handleTransactionNotFoundException(exception);
+
+            // Then
+            assertThat(response).isNotNull();
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+            
+            ErrorResponse responseBody = response.getBody();
+            assertThat(responseBody).isNotNull();
+            assertThat(responseBody.getMessage()).isNull();
+            assertThat(responseBody.getTimestamp()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("Should log error when handling TransactionNotFoundException")
+        void shouldLogErrorWhenHandlingTransactionNotFoundException() {
+            // Given
+            String errorMessage = "Transaction not found for account: 01234567";
+            TransactionNotFoundException exception = new TransactionNotFoundException(errorMessage);
+
+            // When
+            ResponseEntity<ErrorResponse> response = globalExceptionHandler
+                    .handleTransactionNotFoundException(exception);
+
+            // Then
+            assertThat(response).isNotNull();
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+            
+            ErrorResponse responseBody = response.getBody();
+            assertThat(responseBody).isNotNull();
+            assertThat(responseBody.getMessage()).isEqualTo(errorMessage);
+            // Verify that the timestamp is recent (within last few seconds)
+            assertThat(responseBody.getTimestamp()).isAfterOrEqualTo(testStartTime);
+            assertThat(responseBody.getTimestamp()).isBeforeOrEqualTo(LocalDateTime.now().plusSeconds(1));
+        }
+    }
+
+    @Nested
     @DisplayName("Generic Exception Handler Tests")
     class GenericExceptionHandlerTests {
 
