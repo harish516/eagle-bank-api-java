@@ -173,8 +173,13 @@ class TransactionTest {
 
             Set<ConstraintViolation<Transaction>> violations = validator.validate(invalidTransaction);
             
-            assertThat(violations).hasSize(1);
-            assertThat(violations.iterator().next().getMessage()).isEqualTo("Currency is required");
+            assertThat(violations).hasSize(2); // Both @NotBlank and @Pattern trigger for empty/blank strings
+            assertThat(violations)
+                .extracting(ConstraintViolation::getMessage)
+                .containsExactlyInAnyOrder(
+                    "Currency is required",
+                    "Currency must be GBP"
+                );
         }
 
         @Test
