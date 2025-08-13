@@ -3,9 +3,13 @@ package com.eaglebank.service;
 import com.eaglebank.service.interfaces.UserServiceInterface;
 import com.eaglebank.domain.BankAccount;
 import com.eaglebank.domain.User;
+import com.eaglebank.domain.AccountType; // added
+import com.eaglebank.domain.Currency; // added
 import com.eaglebank.dto.CreateUserRequest;
 import com.eaglebank.dto.UpdateUserRequest;
 import com.eaglebank.dto.UserResponse;
+import com.eaglebank.dto.CreateUserAndAccountRequest; // added
+import com.eaglebank.dto.CreateUserAndAccountResponse; // added
 import com.eaglebank.exception.UserNotFoundException;
 import com.eaglebank.repository.BankAccountRepository;
 import com.eaglebank.repository.UserRepository;
@@ -20,6 +24,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.math.BigDecimal; // added
+import java.util.Random; // added
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +35,7 @@ public class UserService implements UserServiceInterface {
 
     private final UserRepository userRepository;
     private final BankAccountRepository bankAccountRepository;
+    private final Random random = new Random(); // added
 
     public UserResponse createUser(CreateUserRequest request) {
         log.info("Creating user - email: {}, name: {}", 
@@ -162,6 +169,82 @@ public class UserService implements UserServiceInterface {
         }
     }
 
+    public CreateUserAndAccountResponse createUserAndAccount(CreateUserAndAccountRequest request) {
+        log.info("Creating user and initial bank account - email: {}, accountName: {}", 
+                LoggingUtils.safeEmailId(request.getEmail()), request.getAccountName());
+        long startTime = System.currentTimeMillis();
+        try {
+            // Validate uniqueness of email first
+            if (userRepository.existsByEmail(request.getEmail())) {
+                log.warn("Composite creation failed - email already exists: {}", 
+                        LoggingUtils.maskEmail(request.getEmail()));
+                throw new IllegalArgumentException("User with email already exists: " + request.getEmail());
+            }
+
+            // Create user entity
+            User user = User.builder()
+                    .id("usr-" + UUID.randomUUID().toString().replace("-", ""))
+                    .name(request.getName())
+                    .address(request.getAddress())
+                    .phoneNumber(request.getPhoneNumber())
+                    .email(request.getEmail())
+                    .createdTimestamp(LocalDateTime.now())
+                    .updatedTimestamp(LocalDateTime.now())
+                    .build();
+            User savedUser = userRepository.save(user);
+            log.debug("User persisted with ID: {}", LoggingUtils.maskUserId(savedUser.getId()));
+
+            // Generate unique account number similar to BankAccountService
+            String accountNumber = generateUniqueAccountNumber();
+
+            BankAccount bankAccount = BankAccount.builder()
+                    .accountNumber(accountNumber)
+                    .sortCode("00-00-00") // TODO: externalize default sort code
+                    .name(request.getAccountName())
+                    .accountType(AccountType.valueOf(request.getAccountType().toUpperCase()))
+                    .balance(BigDecimal.ZERO)
+                    .currency(Currency.GBP.name())
+                    .user(savedUser)
+                    .createdTimestamp(LocalDateTime.now())
+                    .updatedTimestamp(LocalDateTime.now())
+                    .build();
+            BankAccount savedAccount = bankAccountRepository.save(bankAccount);
+            log.debug("Bank account persisted with number: {}", savedAccount.getAccountNumber());
+
+            long duration = System.currentTimeMillis() - startTime;
+            log.info("Composite user+account creation success - userId: {}, accountNumber: {}, duration: {}ms", 
+                    LoggingUtils.maskUserId(savedUser.getId()), savedAccount.getAccountNumber(), duration);
+
+            return CreateUserAndAccountResponse.builder()
+                    .userId(savedUser.getId())
+                    .name(savedUser.getName())
+                    .email(savedUser.getEmail())
+                    .userCreatedTimestamp(savedUser.getCreatedTimestamp())
+                    .accountNumber(savedAccount.getAccountNumber())
+                    .sortCode(savedAccount.getSortCode())
+                    .accountName(savedAccount.getName())
+                    .accountType(savedAccount.getAccountType().name().toLowerCase())
+                    .balance(savedAccount.getBalance())
+                    .currency(savedAccount.getCurrency())
+                    .accountCreatedTimestamp(savedAccount.getCreatedTimestamp())
+                    .build();
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            log.error("Composite creation failed - email: {}, duration: {}ms, error: {}", 
+                    LoggingUtils.maskEmail(request.getEmail()), duration, e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    private String generateUniqueAccountNumber() { // added
+        String accountNumber;
+        do {
+            int randomNumber = 100000 + random.nextInt(900000);
+            accountNumber = "01" + randomNumber;
+        } while (bankAccountRepository.existsByAccountNumber(accountNumber));
+        return accountNumber;
+    }
+
     private UserResponse mapToUserResponse(User user) {
         return UserResponse.builder()
                 .id(user.getId())
@@ -173,4 +256,4 @@ public class UserService implements UserServiceInterface {
                 .updatedTimestamp(user.getUpdatedTimestamp())
                 .build();
     }
-} 
+}

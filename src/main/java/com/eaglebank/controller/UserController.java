@@ -5,6 +5,8 @@ import com.eaglebank.dto.CreateUserRequest;
 import com.eaglebank.dto.ErrorResponse;
 import com.eaglebank.dto.UpdateUserRequest;
 import com.eaglebank.dto.UserResponse;
+import com.eaglebank.dto.CreateUserAndAccountRequest; // added
+import com.eaglebank.dto.CreateUserAndAccountResponse; // added
 import com.eaglebank.exception.CustomAccessDeniedException;
 import com.eaglebank.service.interfaces.UserServiceInterface;
 import com.eaglebank.util.LoggingUtils;
@@ -37,6 +39,30 @@ import java.util.List;
 public class UserController extends BaseController {
 
     private final UserServiceInterface userService;
+
+    @PostMapping("/with-account") // added
+    @Operation(summary = "Create user and initial bank account", description = "Creates a user and an initial bank account atomically")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "User and account created successfully",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = CreateUserAndAccountResponse.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid input data",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestErrorResponse.class))),
+        @ApiResponse(responseCode = "409", description = "User with email already exists",
+                content = @Content(mediaType = "application/json", 
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    examples = @ExampleObject(
+                        value = "{\"message\": \"User with email already exists\", \"timestamp\": \"2024-01-15T10:30:00\"}"))),
+        @ApiResponse(responseCode = "500", description = "Internal server error",
+                content = @Content(mediaType = "application/json", 
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    examples = @ExampleObject(
+                        value = "{\"message\": \"An unexpected error occurred\", \"timestamp\": \"2024-01-15T10:30:00\"}")))
+    })
+    public ResponseEntity<CreateUserAndAccountResponse> createUserAndAccount(@Valid @RequestBody CreateUserAndAccountRequest request) {
+        log.info("Creating user and account with email: {}", LoggingUtils.safeEmailId(request.getEmail()));
+        CreateUserAndAccountResponse response = userService.createUserAndAccount(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
 
     @PostMapping
     @Operation(summary = "Create a new user", description = "Creates a new user account in the system")
@@ -277,4 +303,4 @@ public class UserController extends BaseController {
         List<UserResponse> response = userService.getAllUsers();
         return ResponseEntity.ok(response);
     }
-} 
+}

@@ -3,6 +3,8 @@ package com.eaglebank.service.interfaces;
 import com.eaglebank.dto.CreateUserRequest;
 import com.eaglebank.dto.UpdateUserRequest;
 import com.eaglebank.dto.UserResponse;
+import com.eaglebank.dto.CreateUserAndAccountRequest;
+import com.eaglebank.dto.CreateUserAndAccountResponse;
 
 import java.util.List;
 
@@ -70,4 +72,14 @@ public interface UserServiceInterface {
      * @throws com.eaglebank.exception.UserNotFoundException if user is not found
      */
     UserResponse getUserByEmail(String email);
+
+    /**
+     * Creates a new user and associated account in the system.
+     *
+     * @param request the request containing user and account details
+     * @return the response containing created user and account information
+     * @throws IllegalArgumentException if the request is invalid
+     * @throws RuntimeException if a user with the same email already exists
+     */
+    CreateUserAndAccountResponse createUserAndAccount(CreateUserAndAccountRequest request);
 }
