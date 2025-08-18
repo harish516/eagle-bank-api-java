@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eagle-bank-api
+spec:
+  replicas: 5
+  template:
+    spec:
+      containers:
+      - name: eagle-bank-api
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "prod"
+        - name: JAVA_OPTS
+          value: "-Xmx2048m -Xms1024m -XX:+UseG1GC -XX:+UseStringDeduplication"

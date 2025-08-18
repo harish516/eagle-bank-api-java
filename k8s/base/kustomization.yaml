@@ -1,0 +1,25 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: eagle-bank-base
+
+namespace: eagle-bank
+
+resources:
+  - namespace.yaml
+  - config.yaml
+  - deployment.yaml
+  - service.yaml
+  - postgres.yaml
+  - redis.yaml
+
+commonLabels:
+  app.kubernetes.io/name: eagle-bank
+  app.kubernetes.io/instance: eagle-bank-api
+  app.kubernetes.io/version: "1.0.0"
+  app.kubernetes.io/managed-by: kustomize
+
+images:
+  - name: ghcr.io/harish516/eagle-bank-api-java
+    newTag: latest
