@@ -20,7 +20,7 @@ import java.time.Duration;
  * Implements fault tolerance and system stability patterns for production scalability.
  */
 @Configuration
-@Profile("prod")
+@Profile({"prod", "dev"})
 public class ResilienceConfig {
 
     @ConfigurationProperties(prefix = "eagle-bank.circuit-breaker")
