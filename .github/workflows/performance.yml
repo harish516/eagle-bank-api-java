@@ -1,0 +1,291 @@
+name: Performance Testing
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 3 * * 2' # Weekly performance test on Tuesdays at 3 AM
+
+env:
+  JAVA_VERSION: '21'
+
+jobs:
+  load-test:
+    name: Load Testing
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: eagle_bank_perf
+          POSTGRES_USER: perf_user
+          POSTGRES_PASSWORD: perf_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Build application
+      run: ./mvnw clean package -DskipTests
+
+    - name: Start application
+      run: |
+        java -jar target/*.jar \
+          --spring.profiles.active=performance-test \
+          --spring.datasource.url=jdbc:postgresql://localhost:5432/eagle_bank_perf \
+          --spring.datasource.username=perf_user \
+          --spring.datasource.password=perf_password \
+          --spring.redis.host=localhost \
+          --spring.redis.port=6379 \
+          --server.port=8080 &
+        
+        # Wait for application to start
+        timeout 60 bash -c 'until curl -f http://localhost:8080/actuator/health; do sleep 2; done'
+
+    - name: Run performance tests
+      run: |
+        # Install Artillery.js for load testing
+        npm install -g artillery@latest
+        
+        # Create Artillery test configuration
+        cat > artillery-config.yml << EOF
+        config:
+          target: http://localhost:8080
+          phases:
+            - duration: 60
+              arrivalRate: 10
+              name: "Warm up"
+            - duration: 120
+              arrivalRate: 50
+              name: "Ramp up load"
+            - duration: 300
+              arrivalRate: 100
+              name: "Sustained load"
+          defaults:
+            headers:
+              Content-Type: application/json
+        scenarios:
+          - name: "Health Check"
+            weight: 20
+            flow:
+              - get:
+                  url: "/actuator/health"
+          - name: "API Endpoints"
+            weight: 80
+            flow:
+              - get:
+                  url: "/api/v1/accounts"
+                  headers:
+                    Authorization: "Bearer test-token"
+              - think: 1
+              - get:
+                  url: "/api/v1/transactions"
+                  headers:
+                    Authorization: "Bearer test-token"
+        EOF
+        
+        # Run load test
+        artillery run artillery-config.yml --output performance-report.json
+
+    - name: Generate performance report
+      run: |
+        artillery report performance-report.json --output performance-report.html
+
+    - name: Upload performance results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: performance-results
+        path: |
+          performance-report.json
+          performance-report.html
+
+    - name: Check performance thresholds
+      run: |
+        # Extract metrics from Artillery report
+        RESPONSE_TIME_P95=$(jq '.aggregate.latency.p95' performance-report.json)
+        ERROR_RATE=$(jq '.aggregate.errors | length' performance-report.json)
+        
+        echo "P95 Response Time: ${RESPONSE_TIME_P95}ms"
+        echo "Error Count: ${ERROR_RATE}"
+        
+        # Set thresholds
+        if (( $(echo "$RESPONSE_TIME_P95 > 500" | bc -l) )); then
+          echo "❌ Performance threshold exceeded: P95 response time > 500ms"
+          exit 1
+        fi
+        
+        if (( ERROR_RATE > 10 )); then
+          echo "❌ Error threshold exceeded: Error count > 10"
+          exit 1
+        fi
+        
+        echo "✅ Performance thresholds met"
+
+  stress-test:
+    name: Stress Testing
+    runs-on: ubuntu-latest
+    needs: load-test
+    if: github.ref == 'refs/heads/main'
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: eagle_bank_stress
+          POSTGRES_USER: stress_user
+          POSTGRES_PASSWORD: stress_password
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Build application
+      run: ./mvnw clean package -DskipTests
+
+    - name: Start application with monitoring
+      run: |
+        java -jar target/*.jar \
+          --spring.profiles.active=performance-test \
+          --spring.datasource.url=jdbc:postgresql://localhost:5432/eagle_bank_stress \
+          --spring.datasource.username=stress_user \
+          --spring.datasource.password=stress_password \
+          --spring.redis.host=localhost \
+          --spring.redis.port=6379 \
+          --server.port=8080 \
+          --management.endpoints.web.exposure.include=health,metrics,prometheus &
+        
+        timeout 60 bash -c 'until curl -f http://localhost:8080/actuator/health; do sleep 2; done'
+
+    - name: Run stress test
+      run: |
+        npm install -g artillery@latest
+        
+        cat > stress-test.yml << EOF
+        config:
+          target: http://localhost:8080
+          phases:
+            - duration: 60
+              arrivalRate: 200
+              name: "High load"
+            - duration: 120
+              arrivalRate: 500
+              name: "Stress test"
+            - duration: 60
+              arrivalRate: 1000
+              name: "Breaking point"
+        scenarios:
+          - name: "Concurrent Operations"
+            flow:
+              - get:
+                  url: "/actuator/health"
+              - get:
+                  url: "/actuator/metrics"
+        EOF
+        
+        artillery run stress-test.yml --output stress-report.json
+
+    - name: Analyze stress test results
+      run: |
+        artillery report stress-report.json --output stress-report.html
+        
+        # Check if application survived stress test
+        curl -f http://localhost:8080/actuator/health || echo "Application failed under stress"
+
+    - name: Upload stress test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: stress-test-results
+        path: |
+          stress-report.json
+          stress-report.html
+
+  benchmark:
+    name: Benchmark Testing
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Run JMH benchmarks
+      run: |
+        ./mvnw clean compile exec:java \
+          -Dexec.mainClass="org.openjdk.jmh.Main" \
+          -Dexec.args="-rf json -rff benchmark-results.json"
+
+    - name: Upload benchmark results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: benchmark-results
+        path: benchmark-results.json
+
+  notify-performance:
+    name: Performance Notification
+    runs-on: ubuntu-latest
+    needs: [load-test, stress-test, benchmark]
+    if: always()
+
+    steps:
+    - name: Notify team
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        channel: '#performance'
+        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        text: |
+          Performance testing completed for Eagle Bank API
+          Load Test: ${{ needs.load-test.result }}
+          Stress Test: ${{ needs.stress-test.result }}
+          Benchmark: ${{ needs.benchmark.result }}
+          Commit: ${{ github.sha }}

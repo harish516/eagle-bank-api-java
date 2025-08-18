@@ -1,0 +1,159 @@
+spring:
+  profiles:
+    active: prod
+  
+  # Production Database Configuration
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:eagle_bank}
+    driver-class-name: org.postgresql.Driver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:50}
+      minimum-idle: ${DB_POOL_MIN_IDLE:10}
+      idle-timeout: ${DB_POOL_IDLE_TIMEOUT:300000}
+      connection-timeout: ${DB_POOL_CONNECTION_TIMEOUT:20000}
+      validation-timeout: ${DB_POOL_VALIDATION_TIMEOUT:5000}
+      leak-detection-threshold: ${DB_POOL_LEAK_DETECTION:60000}
+      pool-name: EagleBankHikariCP
+      connection-test-query: SELECT 1
+      
+  # JPA/Hibernate Optimization
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          batch_size: 25
+          fetch_size: 50
+        order_inserts: true
+        order_updates: true
+        connection:
+          provider_disables_autocommit: true
+        cache:
+          use_second_level_cache: true
+          use_query_cache: true
+          region:
+            factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
+    show-sql: false
+    
+  # Redis Configuration for Distributed Caching
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:}
+    timeout: 2000ms
+    lettuce:
+      pool:
+        max-active: 50
+        max-idle: 20
+        min-idle: 5
+        max-wait: 2000ms
+        
+  # Caching Configuration
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=10000,expireAfterWrite=30m
+      
+  # Security Configuration
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${JWT_ISSUER_URI}
+          jwk-set-uri: ${JWT_JWK_SET_URI}
+          cache-duration: PT5M
+          clock-skew: PT2M
+
+# Server Configuration
+server:
+  port: 8080
+  servlet:
+    context-path: /eagle-bank
+  tomcat:
+    threads:
+      max: 200
+      min-spare: 10
+    max-connections: 8192
+    accept-count: 100
+    connection-timeout: 20000ms
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
+    min-response-size: 1024
+
+# Enhanced Management/Monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,httptrace,threaddump,heapdump
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+      probes:
+        enabled: true
+    metrics:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+      datadog:
+        enabled: ${DATADOG_ENABLED:false}
+        api-key: ${DATADOG_API_KEY:}
+        application-key: ${DATADOG_APP_KEY:}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+        jvm.gc.pause: true
+        hikaricp.connections: true
+      sla:
+        http.server.requests: 50ms,100ms,200ms,500ms,1s,2s
+    tags:
+      application: eagle-bank-api
+      environment: ${ENVIRONMENT:prod}
+      version: ${BUILD_VERSION:1.0.0}
+
+# Enhanced Rate Limiting Configuration
+security:
+  rate-limit:
+    default:
+      requests-per-minute: ${RATE_LIMIT_DEFAULT_RPM:100}
+      burst-capacity: ${RATE_LIMIT_DEFAULT_BURST:20}
+    strict:
+      requests-per-minute: ${RATE_LIMIT_STRICT_RPM:20}
+      burst-capacity: ${RATE_LIMIT_STRICT_BURST:5}
+    relaxed:
+      requests-per-minute: ${RATE_LIMIT_RELAXED_RPM:200}
+      burst-capacity: ${RATE_LIMIT_RELAXED_BURST:50}
+
+# Eagle Bank Configuration
+eagle-bank:
+  bank-account:
+    default-sort-code: "10-10-10"
+  async:
+    core-pool-size: ${ASYNC_CORE_POOL_SIZE:10}
+    max-pool-size: ${ASYNC_MAX_POOL_SIZE:50}
+    queue-capacity: ${ASYNC_QUEUE_CAPACITY:100}
+  circuit-breaker:
+    failure-rate-threshold: ${CB_FAILURE_RATE:50}
+    wait-duration-in-open-state: ${CB_WAIT_DURATION:30s}
+    sliding-window-size: ${CB_SLIDING_WINDOW:10}
+
+# Logging Configuration
+logging:
+  level:
+    com.eaglebank: ${LOG_LEVEL_APP:INFO}
+    org.springframework.security: ${LOG_LEVEL_SECURITY:WARN}
+    org.hibernate.SQL: ${LOG_LEVEL_SQL:WARN}
+    org.hibernate.type.descriptor.sql.BasicBinder: ${LOG_LEVEL_SQL_PARAMS:WARN}
+    io.github.bucket4j: ${LOG_LEVEL_RATE_LIMIT:WARN}
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{correlationId}] %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{correlationId}] %logger{36} - %msg%n"
